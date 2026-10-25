@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
-<meta name="app-version" content="1792965032">
+<meta name="app-version" content="1792967097">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -452,7 +452,33 @@ function renderMonth(){
 }
 function renderLegend(){ setTeam(primaryTeamId()); const L=$('#legend'); L.innerHTML=''; const add=(c,t)=>L.append(el('span',{style:'--c:'+c},t));
   for (const n of [1,2,3,4]) add('var(--wk'+n+')','Week '+n+' · Team '+n);
-  add('var(--warn)',S().name+' on-call day ('+DN[S().oncallWeekday]+' + week-'+S().weekendWeek+' weekend)'); add('var(--oncall)','On call'); add('var(--long)','Long weekend'); add('var(--short)','Short weekend'); add('var(--clinic)','Fracture clinic'); add('var(--leave)','Away'); add('var(--pend)','Swap pending'); if (teams().length>1) add('var(--mute)','Other teams (muted)'); }
+  L.append(el('button',{class:'btn sm',onclick:openKey},'Key'));
+}
+function openKey(){ modal('What the colours mean', bd=>{ setTeam(primaryTeamId()); const T=S();
+  const row=(chipEl,text)=>el('div',{class:'tog'}, el('div',{}, chipEl), el('div',{class:'why',style:'flex:1;min-width:200px'},text));
+  const sw=(cls,txt)=>el('span',{class:'chip '+cls},txt);
+  const sec1=el('div',{class:'sec'}, el('h3',{},'Weeks and teams'));
+  for (const n of [1,2,3,4]){ const t=allTeams()[n-1]; sec1.append(row(el('span',{class:'wkband wk'+n,style:'display:inline-flex;padding:4px 10px'}, el('span',{class:'wkn'}, el('span',{},'Week '+n))), t.name+'\u2019s on-call week · on call '+DNL[t.oncallWeekday]+(t.active===false?' · not yet active':''))); }
+  sec1.append(el('div',{class:'note'},'The department runs one 4-week cycle. In week N it is Team N\u2019s on-call week and their weekend.'));
+  const sec2=el('div',{class:'sec'}, el('h3',{},'Days'),
+    row(el('span',{class:'cell duty',style:'display:inline-block;min-height:0;padding:4px 10px;width:auto'}, el('span',{style:'color:var(--warn);font-weight:700'},'7')), 'Red outline: your team\u2019s on-call day ('+DNL[T.oncallWeekday]+'s and your week-'+T.weekendWeek+' weekend). Swaps and leave are entered from these days.'),
+    row(el('span',{class:'cell today',style:'display:inline-block;min-height:0;padding:4px 10px;width:auto;position:relative'}, el('span',{class:'dn'}, el('b',{},'25'))), 'Blue outline: today.'),
+    row(el('span',{class:'cell wkend',style:'display:inline-block;min-height:0;padding:4px 14px;width:auto'},' '), 'Grey: Saturday and Sunday.'));
+  const sec3=el('div',{class:'sec'}, el('h3',{},'Your team\u2019s chips'),
+    row(sw('oncall','On call: Mr Isaac'),'Weekday on call (and trauma list).'),
+    row(sw('post','Post-take + VFC: Mr Isaac'),'Post-take ward round and virtual fracture clinic — the day after an on-call, and the Monday after a long weekend.'),
+    row(sw('long','Long: Mr Isaac · on call + trauma'),'Long weekend: Fri on call + trauma, Sat ward round, Sun on call + trauma, Mon post-take + VFC.'),
+    row(sw('short','Short: Mr Elsayed · on call + trauma'),'Short weekend: Sat on call + trauma, Sun ward round.'),
+    row(sw('clinic','Fracture clinic: Mr Isaac, Mr Rupani'),'Consultants in fracture clinic that day.'),
+    row(sw('warn','Fracture clinic: no consultant'),'Nobody covering fracture clinic — needs sorting.'),
+    row(sw('leave','Mr Young annual leave'),'Away.'),
+    row(sw('pend','Swap pending: Mr Isaac → Mr Rupani'),'A swap has been requested but not yet approved.'),
+    row(el('span',{class:'chip oncall me'},'On call: you'),'A blue ring marks your own name.'),
+    row(el('span',{class:'chip'},el('span',{class:'sw'},'⇄')),'The arrows mean the rota has been changed by a swap.'));
+  const sec4=el('div',{class:'sec'}, el('h3',{},'Other teams'), row(el('span',{class:'chip other'},'T4 OC NS'),'Dashed grey tags are the other teams, for information: T4 = Team 4, OC on call, PT post-take, L long, S short, WR ward round, followed by initials.'));
+  bd.append(sec1,sec2,sec3,sec4);
+}); }
+  for (const n of [1,2,3,4]) add('var(--wk'+n+')','Week '+n+' · Team '+n);
 function renderTop(){
   const b=$('#btnAccount'); b.innerHTML='';
   if (!state.db) b.append('Preview'); else if (!acct()) b.append('Sign in'); else b.append(el('span',{}, el('b',{},actor()), isAdmin()?' · Admin':(isSec()?' · Secretary':''), myTeam()&&teamById(myTeam())?' · '+teamById(myTeam()).short:''));
