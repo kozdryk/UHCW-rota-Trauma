@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
-<meta name="app-version" content="1792961332">
+<meta name="app-version" content="1792961959">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -488,6 +488,9 @@ async function logEntry(text){ try { const ref=state.db.doc('log/recent'); const
 const consSel = (value, allowNone, filter) => { const s=el('select',{class:'inp'}); if (allowNone) s.append(el('option',{value:''},'—')); for (const c of cons()) if(!filter||filter(c)) s.append(el('option',{value:c.id},c.name)); s.value=value||''; return s; };
 const newId = p => (p||'r')+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 
+/* clinic days touched by a duty: the on-call day itself, or Fri–Sun of a weekend; only those that are clinic days for that team */
+function clinicDaysOf(duty){ const prev=CT; setTeam(duty.team); const days=duty.kind==='oncall'?[duty.date]:[0,1,2].map(i=>ymd(addDays(parse(duty.date),i))); const out=days.filter(k=>(S().clinicWeekdays||[]).includes(dow(parse(k)))); CT=prev; return out; }
+async function setClinicPresence(teamId, dateKey, personId, present){ const prev=CT; setTeam(teamId); const key=dk(dateKey); const rec=state.clinic[key]||{}; const pres={...(rec.present||{})}; pres[personId]=present; CT=prev; await state.db.doc('clinic/'+key).set({...rec,team:teamId,date:dateKey,present:pres,by:actor(),at:nowIso()}); }
 async function transfer(duty, from, to, note){
   if (holderOf(duty)!==from) throw new Error(nameOf(from)+' no longer holds '+duty.label+'.');
   const prev=CT; setTeam(duty.team); const at=nowIso();
@@ -574,17 +577,22 @@ function swapForm(duty, mode){
     const fillReturn=()=>{ while(retSel.options.length>1) retSel.remove(1); const list = mode==='ask' ? (who.value?dutiesOf(who.value, todayKey(), 200):[]) : dutiesOf(me, todayKey(), 200); for (const du of list) retSel.append(el('option',{value:JSON.stringify(du)},du.label)); };
     if (who) who.onchange=fillReturn; fillReturn();
     const note=el('input',{class:'inp grow',placeholder:'message (optional)',id:'sw-note'});
+    const giver = mode==='ask' ? me : duty.holder;
+    const cdays=clinicDaysOf(duty); const clinicQ=el('div',{class:'sec'}, el('h3',{},'Fracture clinic that day'));
+    const clinicSel=el('select',{class:'inp grow',id:'sw-clinic'}, el('option',{value:'away'},(mode==='ask'?'I will be away':nameOf(giver)+' will be away')+' — not in fracture clinic'), el('option',{value:'in'},(mode==='ask'?'I will still be in':nameOf(giver)+' will still be in')+' fracture clinic'), el('option',{value:'keep'},'Leave clinic as it is'));
+    if (cdays.length) clinicQ.append(el('div',{class:'note'},'Clinic day'+(cdays.length>1?'s':'')+': '+cdays.map(fmtKey).join(', ')+'. When the swap is approved, '+(mode==='ask'?'your':nameOf(giver)+'\'s')+' clinic attendance is set from this.'), el('div',{class:'fr'}, clinicSel)); else clinicQ.append(el('div',{class:'note'},'No fracture clinic falls on this duty.'));
     bd.append(el('div',{class:'sec hl'}, el('h3',{},'Duty'), el('div',{class:'big'},duty.label+' · currently '+nameOf(duty.holder)),
       mode==='ask' ? el('div',{class:'fr'}, el('label',{for:'sw-who'},'Ask'), who) : el('div',{class:'note'},'You offer to take this duty from '+nameOf(duty.holder)+'. They approve or decline.'),
       el('div',{class:'fr'}, el('label',{for:'sw-ret'},mode==='ask'?'In return I take their':'In return they take my'), retSel),
       el('div',{class:'fr'}, note),
+      cdays.length?clinicQ:null,
       el('div',{class:'note'},'They see this as a notification the next time they open the rota. Nothing changes until they approve it with their password.'),
       el('div',{class:'fr'}, el('button',{class:'btn primary',onclick:()=>{
         const toId = mode==='ask' ? who.value : duty.holder; if (!toId){ toast('Choose who to ask.'); return; }
         const take = retSel.value ? JSON.parse(retSel.value) : null;
         const req = mode==='ask'
-          ? { type:'swap', team:duty.team, from:me, to:toId, give:duty, take, note:note.value.trim(), status:'pending', createdAt:nowIso(), createdBy:actor() }
-          : { type:'swap', team:duty.team, from:duty.holder, to:me, give:duty, take, note:note.value.trim(), status:'pending', createdAt:nowIso(), createdBy:actor(), offered:true };
+          ? { type:'swap', team:duty.team, from:me, to:toId, give:duty, take, note:note.value.trim(), clinic:cdays.length?clinicSel.value:'keep', status:'pending', createdAt:nowIso(), createdBy:actor() }
+          : { type:'swap', team:duty.team, from:duty.holder, to:me, give:duty, take, note:note.value.trim(), clinic:cdays.length?clinicSel.value:'keep', status:'pending', createdAt:nowIso(), createdBy:actor(), offered:true };
         withPin('send this request',()=>{ const id=newId('swap'); write(()=>state.db.doc('requests/'+id).set(req), 'Swap requested: '+nameOf(req.from)+' → '+nameOf(req.to)+' for '+duty.label).then(ok=>{ if(ok) closeModal(); }); });
       }},'Send request'), el('button',{class:'btn',onclick:closeModal},'Cancel'))));
   });
@@ -640,7 +648,7 @@ function markSeen(){ const now=nowIso(); state.seenLocal=now; try{localStorage.s
 function requestCard(r){
   const card=el('div',{class:'req '+r.status}); const tn=(teamById(r.team)||{}).short||'';
   let title, meta;
-  if (r.type==='swap'){ title=(tn?tn+' · ':'')+(r.offered?nameOf(r.to)+' offers to cover '+nameOf(r.from)+'\'s ':nameOf(r.from)+' asks '+nameOf(r.to)+' to cover ')+r.give.label; meta=(r.take?'In return: '+nameOf(r.to)+' hands '+r.take.label+' to '+nameOf(r.from):'Nothing in return')+(r.note?' · "'+r.note+'"':''); }
+  if (r.type==='swap'){ title=(tn?tn+' · ':'')+(r.offered?nameOf(r.to)+' offers to cover '+nameOf(r.from)+'\'s ':nameOf(r.from)+' asks '+nameOf(r.to)+' to cover ')+r.give.label; meta=(r.take?'In return: '+nameOf(r.to)+' hands '+r.take.label+' to '+nameOf(r.from):'Nothing in return')+(r.clinic==='away'?' · '+nameOf(r.from)+' away, not in clinic':r.clinic==='in'?' · '+nameOf(r.from)+' still in clinic':'')+(r.note?' · "'+r.note+'"':''); }
   else if (r.type==='slot'){ title=(tn?tn+' · ':'')+nameOf(r.from)+' asks to move to on-call week '+r.slot+' (from week '+((byId(r.from)||{}).slot||'—')+')'; meta='Needs administrator approval'+(r.note?' · "'+r.note+'"':''); }
   else if (r.type==='issue'){ title='Problem reported by '+(r.createdBy||'someone')+(r.date?' · '+fmtKey(r.date):''); meta=r.note||''; if (r.resolution) meta+=' · Resolution: '+r.resolution; }
   else { title=r.title||'Request'; meta=r.note||''; }
@@ -662,7 +670,7 @@ function decide(r, status){
   withPin(status==='approved'?'approve this request':'decline this request', async()=>{
     await write(async()=>{
       if (status==='approved'){
-        if (r.type==='swap'){ await transfer(r.give, r.from, r.to); if (r.take) await transfer(r.take, r.to, r.from); }
+        if (r.type==='swap'){ await transfer(r.give, r.from, r.to); if (r.take) await transfer(r.take, r.to, r.from); if (r.clinic==='away'||r.clinic==='in'){ for (const k of clinicDaysOf(r.give)) await setClinicPresence(r.give.team, k, r.from, r.clinic==='in'); } }
         else if (r.type==='slot'){ const t=structuredClone(teamById(r.team)||teamById(teamOf(r.from))); if(!t) throw new Error('Team not found.'); const other=t.consultants.find(c=>c.slot===r.slot&&c.id!==r.from); const mine=t.consultants.find(c=>c.id===r.from); if(!mine) throw new Error('Consultant not found.'); const old=mine.slot; mine.slot=r.slot; if (other) other.slot=old; await state.db.doc('teams/'+t.id).set(encTeam(t)); }
       }
       await state.db.doc('requests/'+r.id).set({...r,status,decidedAt:nowIso(),decidedBy:actor()});
