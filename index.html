@@ -6,9 +6,12 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
+<meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="UHCW Rota">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>UHCW T&amp;O On-Call Rota</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23005eb8'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='28' font-weight='700' fill='white' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -33,6 +36,7 @@ img{max-width:100%}
 
 /* Layout: a sticky team bar, a "right now" strip, then one calendar (7-col grid on desktop, day list on phone). Tapping a day opens a bottom sheet editor. Writes are gated by a claimed account + shared password. */
 :root{
+  color-scheme:light;
   --bg:#f0f4f5; --card:#ffffff; --fg:#212b32; --mute:#4c6272; --line:#d8dde0; --soft:#e8edef;
   --nhs:#005eb8; --nhs-dark:#003087; --nhs-ink:#ffffff;
   --accent:#005eb8; --accent-ink:#ffffff;
@@ -47,32 +51,8 @@ img{max-width:100%}
   --today:#005eb8;
   --display:"Source Sans 3",Frutiger,Arial,sans-serif; --body:"Source Sans 3",Frutiger,Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1a24; --card:#172634; --fg:#e9eef2; --mute:#9fb0bd; --line:#2b3d4d; --soft:#20303f;
-  --nhs:#003087; --nhs-dark:#00205b; --nhs-ink:#ffffff;
-  --accent:#41b6e6; --accent-ink:#0b1416;
-  --oncall:#8fc3f2; --oncall-bg:#1a3457;
-  --long:#c9b4ea; --long-bg:#352552;
-  --short:#f7bf6b; --short-bg:#4a3215;
-  --clinic:#7fd1a2; --clinic-bg:#173d2a;
-  --leave:#aab7c1; --leave-bg:#2b3a46;
-  --warn:#ff7b6e; --warn-bg:#4a2120; --duty-bg:#2a1d1f;
-  --pend:#f2d16b; --pend-bg:#4a3f14;
-  --swap:#f3a764;
-  --today:#41b6e6; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0f1a24; --card:#172634; --fg:#e9eef2; --mute:#9fb0bd; --line:#2b3d4d; --soft:#20303f;
-  --nhs:#003087; --nhs-dark:#00205b; --nhs-ink:#ffffff;
-  --accent:#41b6e6; --accent-ink:#0b1416;
-  --oncall:#8fc3f2; --oncall-bg:#1a3457;
-  --long:#c9b4ea; --long-bg:#352552;
-  --short:#f7bf6b; --short-bg:#4a3215;
-  --clinic:#7fd1a2; --clinic-bg:#173d2a;
-  --leave:#aab7c1; --leave-bg:#2b3a46;
-  --warn:#ff7b6e; --warn-bg:#4a2120; --duty-bg:#2a1d1f;
-  --pend:#f2d16b; --pend-bg:#4a3f14;
-  --swap:#f3a764;
-  --today:#41b6e6; color-scheme:dark}
+
+
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4}
@@ -83,7 +63,7 @@ button{cursor:pointer}
 .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--nhs);color:var(--nhs-ink);border-bottom:4px solid var(--nhs-dark)}
-.topbar .btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:var(--nhs-ink)}
+.topbar .btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:var(--nhs-ink);text-decoration:none}
 .topbar .btn:hover{background:rgba(255,255,255,.22)}
 .topbar .who b{color:var(--nhs-ink)}
 .topbar .badge{background:#ffb81c;color:#212b32}
@@ -215,6 +195,7 @@ td .inp.sm{width:5.5em}
   <button class="btn sm" id="btnExport">Calendar file</button>
   <button class="btn sm" id="btnLog">Changes</button>
   <button class="btn sm" id="btnSettings" hidden>Settings</button>
+  <a class="btn sm" href="help.html" id="btnHelp">Help</a>
 </div></div>
 
 <div class="wrap">

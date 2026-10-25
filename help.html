@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#005eb8">
+<title>How to use the rota</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{color-scheme:light;--nhs:#005eb8;--nhs-dark:#003087;--bg:#f0f4f5;--card:#fff;--fg:#212b32;--mute:#4c6272;--line:#d8dde0;--red:#da291c;--green:#007f3b;--yellow:#ffb81c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Source Sans 3",Frutiger,Arial,sans-serif;font-size:17px;line-height:1.5}
+.top{background:var(--nhs);color:#fff;border-bottom:4px solid var(--nhs-dark);padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right))}
+.top .t{font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.85;font-weight:600}
+.top h1{margin:2px 0 0;font-size:22px}
+.top a{color:#fff;font-weight:600}
+main{max-width:680px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-left)) 60px max(16px,env(safe-area-inset-right))}
+h2{font-size:20px;margin:28px 0 8px;color:var(--nhs-dark)}
+.step{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:10px 0;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.n{width:30px;height:30px;border-radius:50%;background:var(--nhs);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step p{margin:0}
+.step b{font-weight:700}
+.key{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:4px;padding:0 6px;font-weight:600}
+.pw{font-family:ui-monospace,Menlo,monospace;background:#fff;border:1px solid var(--line);border-radius:4px;padding:0 6px;font-weight:700;letter-spacing:.04em}
+.red{color:var(--red);font-weight:700}
+.tip{border-left:4px solid var(--yellow);background:#fff8e5;padding:10px 12px;border-radius:0 8px 8px 0;margin:10px 0}
+.tabs{display:flex;gap:8px;margin:8px 0}
+.tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:4px;padding:8px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--nhs);color:#fff;border-color:var(--nhs)}
+[hidden]{display:none!important}
+ul{padding-left:20px}
+li{margin:4px 0}
+.foot{color:var(--mute);font-size:14px;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="top"><div class="t">University Hospitals Coventry and Warwickshire NHS Trust</div><h1>How to use the on-call rota</h1><div><a href="./">← Back to the rota</a></div></div>
+<main>
+
+<h2>1. Put it on your phone's home screen</h2>
+<p>Then it opens like an app, with one tap.</p>
+<div class="tabs"><button class="on" id="tIos" onclick="show('ios')">iPhone</button><button id="tAnd" onclick="show('and')">Android</button></div>
+<div id="ios">
+  <div class="step"><div class="n">1</div><p>Open the rota link in <b>Safari</b> (it must be Safari, not Chrome or the WhatsApp browser). If WhatsApp opened it for you, tap the <b>⋯</b> or share icon and choose <b>Open in Safari</b>.</p></div>
+  <div class="step"><div class="n">2</div><p>Tap the <b>Share</b> button at the bottom of the screen (the square with an arrow pointing up).</p></div>
+  <div class="step"><div class="n">3</div><p>Scroll down the list and tap <b>Add to Home Screen</b>.</p></div>
+  <div class="step"><div class="n">4</div><p>Tap <b>Add</b> in the top right. A blue <b>UHCW Rota</b> icon appears on your home screen.</p></div>
+</div>
+<div id="and" hidden>
+  <div class="step"><div class="n">1</div><p>Open the rota link in <b>Chrome</b>. If WhatsApp opened it in its own window, tap the <b>⋮</b> menu and choose <b>Open in Chrome</b>.</p></div>
+  <div class="step"><div class="n">2</div><p>Tap the <b>⋮</b> menu in the top right of Chrome.</p></div>
+  <div class="step"><div class="n">3</div><p>Tap <b>Add to Home screen</b> (on some phones it says <b>Install app</b>).</p></div>
+  <div class="step"><div class="n">4</div><p>Tap <b>Add</b>. A blue <b>UHCW Rota</b> icon appears on your home screen.</p></div>
+</div>
+
+<h2>2. Sign in (first time only)</h2>
+<div class="step"><div class="n">1</div><p>Open the rota. Tap <span class="key">Sign in</span> at the top right.</p></div>
+<div class="step"><div class="n">2</div><p>Type your <b>UHCW email</b> (firstname.surname@uhcw.nhs.uk) and the password <span class="pw">ROTA</span>. Tap <b>Continue</b>.</p></div>
+<div class="step"><div class="n">3</div><p>Choose your <b>team</b>. Your name is filled in from your email, so you can't pick the wrong person. Tap <b>Create my account</b>.</p></div>
+<div class="tip">You stay signed in on that phone. The first time you change something each day, the app asks for the password again, so nothing changes by accident.</div>
+
+<h2>3. Read the calendar</h2>
+<ul>
+  <li><span class="red">Red days</span> are your team's on-call days: every Wednesday and your team weekend (Friday to Sunday) every 4 weeks.</li>
+  <li><b>OC</b> = on call. <b>L</b> = long weekend. <b>S</b> = short weekend. <b>FC</b> = who is in fracture clinic. <b>PT</b> = post-take Monday.</li>
+  <li>Your own name has a blue outline so you can spot it quickly.</li>
+  <li>Tap any day to see the full names and details.</li>
+  <li>Other teams show as small grey tags, for information.</li>
+</ul>
+
+<h2>4. Swap an on-call</h2>
+<div class="step"><div class="n">1</div><p>Tap a <span class="red">red day</span> where you are on call.</p></div>
+<div class="step"><div class="n">2</div><p>Tap <span class="key">Ask someone to cover</span> and choose the colleague.</p></div>
+<div class="step"><div class="n">3</div><p>If you will do one of their on-calls in return, pick it from the list. Otherwise leave it as "Nothing in return".</p></div>
+<div class="step"><div class="n">4</div><p>Tap <b>Send request</b>. Nothing changes on the rota until your colleague says yes.</p></div>
+<div class="tip">You can also offer to cover someone else: tap their red day and tap <b>Offer to cover</b>.</div>
+
+<h2>5. Answer a request</h2>
+<div class="step"><div class="n">1</div><p>When someone asks you, a red number appears on <span class="key">Notifications</span> at the top, and a yellow box appears at the top of the page.</p></div>
+<div class="step"><div class="n">2</div><p>Open it and tap <b>Approve</b> or <b>Decline</b>. Type your password if asked.</p></div>
+<div class="step"><div class="n">3</div><p>If you approve, the rota updates by itself for everyone.</p></div>
+
+<h2>6. Fracture clinic</h2>
+<p>On a clinic day the app assumes you are in clinic unless you are on call or away. If that is wrong, tap the day and tap <b>In clinic</b> or <b>Not in</b> next to <b>your own name</b>. Tap <b>Reset</b> to go back to the automatic setting. The day shows red if nobody is covering the clinic.</p>
+
+<h2>7. Leave</h2>
+<div class="step"><div class="n">1</div><p>Tap a <span class="red">red day</span> (any on-call day), scroll to <b>Away / leave</b>.</p></div>
+<div class="step"><div class="n">2</div><p>Set the from and to dates, the type (annual, study, sick) and tap <b>Add</b>.</p></div>
+<div class="step"><div class="n">3</div><p>If your leave covers one of your on-calls, the app tells you, so you can arrange a swap.</p></div>
+
+<h2>8. Change your regular week for good</h2>
+<p>Open <span class="key">Notifications</span>, find <b>My regular on-call week</b>, choose the week and tap <b>Request</b>. Mr Kozdryk approves it and the whole rota moves.</p>
+
+<h2>9. Put your on-calls in your phone calendar</h2>
+<p>Tap <span class="key">Calendar file</span>, choose your name, tap <b>Download .ics file</b>, then open the file and add it to Google Calendar or Outlook. Download it again after a swap; the calendar does not update by itself.</p>
+
+<p class="foot">Questions, a wrong name, or a locked account: ask Mr Kozdryk.</p>
+</main>
+<script>
+function show(w){document.getElementById('ios').hidden=w!=='ios';document.getElementById('and').hidden=w!=='and';document.getElementById('tIos').className=w==='ios'?'on':'';document.getElementById('tAnd').className=w==='and'?'on':'';}
+if(/Android/i.test(navigator.userAgent)) show('and');
+</script>
+</body>
+</html>
