@@ -88,7 +88,7 @@ button:active{transform:translateY(1px)}
 .field .read{font-size:17px;font-weight:600}
 .field .read .surname{font-weight:400;color:var(--muted)}
 .field .read.none{font-weight:400;color:var(--muted)}
-input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);
+input[type=text],input[type=password],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);
   border:1px solid var(--line);border-radius:10px;padding:11px 12px;min-height:44px}
 textarea{min-height:130px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px}
 input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
@@ -348,24 +348,61 @@ async function saveDay(id, sheet, btn){
   }
 }
 
-async function unlock(){
+function unlock(){
   if (unlocked){
     unlocked = false; sessionStorage.removeItem("rota-unlocked");
     $("lockBtn").textContent = "Unlock"; $("lockBtn").className = "btn-ghost";
+    const kb = $("keyBtn"); if (kb) kb.remove();
     closeSheet(); render(); toast("Locked");
     return;
   }
-  const p = prompt("Passphrase to edit the rota:");
-  if (p === null) return;
-  if (await sha256(p) !== PASS_HASH){ toast("That passphrase isn't right"); return; }
-  unlocked = true; sessionStorage.setItem("rota-unlocked","1");
-  if (!me){
-    const who = prompt("Your initials (optional — shows who last changed a day):", "");
-    if (who){ me = who.trim().toUpperCase(); localStorage.setItem("rota-me", me); }
-  }
-  $("lockBtn").textContent = "Lock"; $("lockBtn").className = "btn-primary";
-  render(); toast("Unlocked — tap a day to edit");
-  showKeyButton();
+  const sheet = $("sheet");
+  sheet.innerHTML = "";
+  const h = document.createElement("h3"); h.textContent = "Unlock to edit";
+  const w = document.createElement("div"); w.className = "when";
+  w.textContent = "Shared passphrase \u2014 ask whoever set the rota up.";
+
+  const f1 = document.createElement("div"); f1.className = "field";
+  const l1 = document.createElement("label"); l1.textContent = "Passphrase"; l1.htmlFor = "pw";
+  const pw = document.createElement("input");
+  pw.type = "password"; pw.id = "pw"; pw.autocomplete = "current-password";
+  f1.append(l1, pw);
+
+  const f2 = document.createElement("div"); f2.className = "field";
+  const l2 = document.createElement("label"); l2.textContent = "Your initials (optional)";
+  const who = document.createElement("input");
+  who.type = "text"; who.value = me; who.placeholder = "e.g. JK";
+  who.autocapitalize = "characters"; who.autocomplete = "off"; who.spellcheck = false;
+  const hint = document.createElement("div"); hint.className = "hint";
+  hint.textContent = "Shows who last changed a day.";
+  f2.append(l2, who, hint);
+
+  const err = document.createElement("div");
+  err.className = "hint"; err.style.color = "var(--warn)";
+
+  const row = document.createElement("div"); row.className = "row";
+  const cancel = document.createElement("button");
+  cancel.className = "btn-ghost"; cancel.textContent = "Cancel"; cancel.onclick = closeSheet;
+  const go = document.createElement("button");
+  go.className = "btn-primary"; go.textContent = "Unlock";
+  const submit = async () => {
+    go.disabled = true;
+    if (await sha256(pw.value) !== PASS_HASH){
+      go.disabled = false; err.textContent = "That passphrase isn't right."; pw.select(); return;
+    }
+    unlocked = true; sessionStorage.setItem("rota-unlocked", "1");
+    me = who.value.trim().toUpperCase();
+    if (me) localStorage.setItem("rota-me", me); else localStorage.removeItem("rota-me");
+    $("lockBtn").textContent = "Lock"; $("lockBtn").className = "btn-primary";
+    showKeyButton(); closeSheet(); render(); toast("Unlocked \u2014 tap a day to edit");
+  };
+  go.onclick = submit;
+  pw.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+  row.append(cancel, go);
+
+  sheet.append(h, w, f1, f2, err, row);
+  sheet.classList.add("open"); $("sheetBg").classList.add("open");
+  setTimeout(() => pw.focus(), 120);
 }
 
 function showKeyButton(){
