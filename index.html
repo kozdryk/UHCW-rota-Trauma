@@ -181,11 +181,14 @@ td .inp.sm{width:5.5em}
 .fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:8;box-shadow:0 4px 14px rgba(0,0,0,.2)}
 @media (min-width:760px){.fab{display:none}}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(20px);opacity:0}}@media (min-width:760px){.sheet{animation:none}}}
+.ptr{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;z-index:12;background:var(--nhs);color:#fff;font-size:13px;font-weight:600;transition:height .15s}
+.ptr span{padding-bottom:8px}
 </style>
 </head>
 <body>
 
 
+<div class="ptr" id="ptr"><span>Pull to refresh</span></div>
 <div class="topbar"><div class="wrap">
   <div><div class="trust">University Hospitals Coventry and Warwickshire NHS Trust</div><h1 id="teamName">On-Call Rota</h1><div class="sub" id="teamSub">Trauma &amp; Orthopaedics</div></div>
   <div class="spacer"></div>
@@ -240,7 +243,8 @@ const DEFAULT_TEAM = {
   ],
   weekendPattern:[[1,3],[4,2],[3,1],[2,4]],
 };
-const blankTeam = (id, n) => ({ id, name:'Team '+n, short:'T'+n, active:true, order:n, anchorDate:'2026-11-04', anchorWeek:4, oncallWeekday:2, clinicWeekdays:[2], weekendWeek:3, consultants:[], weekendPattern:[[1,2],[3,4],[2,1],[4,3]] });
+const fixedTeam = n => ({ id:'team'+n, name:'Team '+n, short:'T'+n, active:n===3, order:n, anchorDate:'2026-11-04', anchorWeek:4, oncallWeekday:n-1, clinicWeekdays:[n-1], weekendWeek:n, consultants:[], weekendPattern:[[1,3],[4,2],[3,1],[2,4]] });
+const FIXED_TEAMS=[1,2,3,4];
 
 /* ---------- state ---------- */
 const state = { G: {...DEFAULT_G}, teams:{}, overrides:{}, weekends:{}, clinic:{}, leave:{}, requests:{}, accounts:{}, log:[], db:null, acct:null, login:'', canWrite:true, open:null, seenLocal:'', viewTeam:'', sheetTeam:'' };
@@ -268,7 +272,8 @@ const G = () => state.G;
 const normPat = pat => (pat||[]).map(p=>Array.isArray(p)?p.slice(0,2):[Number(p.long)||0,Number(p.short)||0]);
 const normTeam = t => ({...t, weekendPattern: normPat(t.weekendPattern)});
 const encTeam = t => ({...t, weekendPattern: normPat(t.weekendPattern).map(p=>({long:p[0],short:p[1]}))});
-const teams = () => { const list=Object.values(state.teams).filter(t=>t.active!==false); return (list.length?list:[DEFAULT_TEAM]).sort((a,b)=>(a.order||0)-(b.order||0)); };
+const allTeams = () => FIXED_TEAMS.map(n=>state.teams['team'+n] || (n===3?DEFAULT_TEAM:fixedTeam(n)));
+const teams = () => { const list=allTeams().filter(t=>t.active!==false); return list.length?list:[allTeams()[2]]; };
 const teamById = id => teams().find(t=>t.id===id) || null;
 let CT = null;
 const S = () => CT || teams()[0];
@@ -725,15 +730,13 @@ $('#btnSettings').onclick=()=>modal('Settings', bd=>{
   const pinI=el('input',{class:'inp',value:g.pin||'ROTA',id:'st-pin'}), apinI=el('input',{class:'inp',value:g.adminPin||'ROTAUHCW',id:'st-apin'}), domI=el('input',{class:'inp',value:g.emailDomain||'',id:'st-dom',placeholder:'any'});
   bd.append(el('div',{class:'sec'}, el('h3',{},'Whole rota'), el('div',{class:'fr'}, el('label',{for:'st-name'},'Title'), nameI), el('div',{class:'fr'}, el('label',{for:'st-sub'},'Subtitle'), subI), el('div',{class:'fr'}, el('label',{for:'st-pin'},'Team password'), pinI, el('label',{for:'st-apin'},'Admin password'), apinI), el('div',{class:'fr'}, el('label',{for:'st-dom'},'Email domain required'), domI),
     el('div',{class:'fr'}, el('button',{class:'btn sm primary',onclick:()=>{ const ng={...g,appName:nameI.value.trim()||'On-Call Rota',subtitle:subI.value.trim(),pin:pinI.value.trim()||'ROTA',adminPin:apinI.value.trim()||'ROTAUHCW',emailDomain:domI.value.trim().replace(/^@/,'')}; if (ng.pin.toLowerCase()===ng.adminPin.toLowerCase()){ toast('Team and admin passwords must differ.'); return; } withPin('save settings',()=>write(()=>state.db.doc('settings/main').set(ng),'Rota settings saved')); }},'Save'), el('span',{class:'note'},'Passwords are not case-sensitive. Signing in with the admin password creates an administrator account.'))));
-  // team picker
-  const tl=teams(); if (!teamById(settingsTeam)) settingsTeam=tl[0].id;
-  const tsel=el('select',{class:'inp',id:'st-team'}); for (const t of tl) tsel.append(el('option',{value:t.id},t.name)); tsel.value=settingsTeam; tsel.onchange=()=>{ settingsTeam=tsel.value; state.open(); };
-  const used=new Set(Object.values(state.teams).map(t=>Number((t.name||'').replace(/\D/g,''))||t.order).filter(Boolean));
-  const freeNums=[1,2,3,4].filter(n=>!used.has(n));
-  const addSel=el('select',{class:'inp',id:'st-addteam'}, ...freeNums.map(n=>el('option',{value:String(n)},'Team '+n)));
-  const addTeam=el('button',{class:'btn sm',disabled:!freeNums.length,onclick:()=>{ const n=Number(addSel.value); if(!n) return; const t=blankTeam('team'+n,n); withPin('add a team',()=>write(()=>state.db.doc('teams/'+t.id).set(encTeam(t)),'Team added: '+t.name).then(ok=>{ if(ok){ settingsTeam=t.id; } })); }},'Add');
-  bd.append(el('div',{class:'sec'}, el('h3',{},'Teams'), el('div',{class:'fr'}, el('label',{for:'st-team'},'Edit team'), tsel, el('span',{class:'note'},'·'), el('label',{for:'st-addteam'},'Add'), addSel, addTeam), el('div',{class:'note'},'Each team has its own on-call weekday, weekend week, consultants and 4-week cycle. All teams appear in everyone\'s calendar; a person\'s own team is highlighted.')));
-  const s=structuredClone(teamById(settingsTeam));
+  // team picker + active ticks
+  const tl=allTeams(); if (!FIXED_TEAMS.some(n=>'team'+n===settingsTeam)) settingsTeam=teams()[0].id;
+  const ticks=el('div',{class:'fr'});
+  for (const t of tl){ const cb=el('input',{type:'checkbox',checked:t.active!==false,id:'act-'+t.id,onchange:e=>{ const on=e.target.checked; withPin((on?'activate ':'deactivate ')+t.name,()=>write(()=>state.db.doc('teams/'+t.id).set(encTeam({...t,active:on})), t.name+(on?' activated':' deactivated')).then(ok=>{ if(!ok) e.target.checked=!on; })); }}); ticks.append(el('label',{for:'act-'+t.id,style:'display:inline-flex;gap:6px;align-items:center;margin-right:10px'},cb,t.name+' ('+DNL[t.oncallWeekday]+')')); }
+  const tsel=el('select',{class:'inp',id:'st-team'}); for (const t of tl) tsel.append(el('option',{value:t.id},t.name+(t.active===false?' (inactive)':''))); tsel.value=settingsTeam; tsel.onchange=()=>{ settingsTeam=tsel.value; state.open(); };
+  bd.append(el('div',{class:'sec'}, el('h3',{},'Teams'), el('div',{class:'note'},'Active teams appear in the calendar and can be signed into. One 4-week cycle for the department: week 1 is Team 1\'s on-call week (Monday), week 2 Team 2 (Tuesday), week 3 Team 3 (Wednesday), week 4 Team 4 (Thursday).'), ticks, el('div',{class:'fr'}, el('label',{for:'st-team'},'Edit team'), tsel)));
+  const s=structuredClone(allTeams().find(t=>t.id===settingsTeam));
   const tnI=el('input',{class:'inp',value:s.name,id:'t-name'}), tsI=el('input',{class:'inp sm',value:s.short||'',maxlength:'4',id:'t-short'}); const actI=el('input',{type:'checkbox',checked:s.active!==false,id:'t-active'});
   const tbl=el('table',{}, el('tr',{}, el('th',{},'Name'), el('th',{},'Initials'), el('th',{},'On-call week'), el('th',{},'Clinic'), el('th',{},'')));
   const drawRows=()=>{ while(tbl.rows.length>1) tbl.deleteRow(1); s.consultants.forEach((c,i)=>{ const nm=el('input',{class:'inp',value:c.name,oninput:e=>c.name=e.target.value,id:'c-name-'+i}); const sh=el('input',{class:'inp sm',value:c.short||'',maxlength:'4',oninput:e=>c.short=e.target.value.toUpperCase(),id:'c-short-'+i}); const sl=el('select',{class:'inp',onchange:e=>c.slot=Number(e.target.value),id:'c-slot-'+i}, el('option',{value:'0'},'not on rota'), ...[1,2,3,4].map(n=>el('option',{value:String(n)},'Week '+n))); sl.value=String(c.slot||0); const cl=el('input',{type:'checkbox',checked:!!c.clinic,onchange:e=>c.clinic=e.target.checked,id:'c-clinic-'+i,'aria-label':'attends fracture clinic'}); tbl.append(el('tr',{}, el('td',{},nm), el('td',{},sh), el('td',{},sl), el('td',{},cl), el('td',{}, el('button',{class:'btn sm danger',onclick:()=>{ s.consultants.splice(i,1); drawRows(); }},'Remove')))); }); };
@@ -752,7 +755,7 @@ $('#btnSettings').onclick=()=>modal('Settings', bd=>{
     el('h3',{},'Consultants'), el('div',{class:'note'},'Give each on-call consultant a week number; everyone with a number is populated 4-weekly for the whole rota. Clinic-only consultants stay "not on rota".'), el('div',{class:'tw'},tbl), el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>{ s.consultants.push({id:s.id+'-c'+Date.now().toString(36),name:'Mr ',short:'',slot:0,clinic:true}); drawRows(); }},'Add consultant')),
     el('h3',{},'4-week cycle'), el('div',{class:'fr'}, el('label',{for:'st-anchor'},'The date'), anchor, el('label',{for:'st-aw'},'falls in'), aw), el('div',{class:'note'},'Everything is worked out from this one date. Weeks run Monday to Sunday.'), el('div',{class:'fr'}, el('label',{for:'st-ocd'},'Weekday on call'), ocd, el('label',{for:'st-ww'},'Team weekend in'), ww), el('div',{class:'fr'}, el('label',{},'Fracture clinic days'), cds),
     el('h3',{},'Weekend pairs'), el('div',{class:'note'},'These rows repeat in order every 4 weeks; with 4 rows each consultant does one long and one short weekend every 16 weeks. One-off swaps are made on the day itself.'), el('div',{class:'tw'},ptbl), el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>{ pat.push([1,2]); drawPat(); }},'Add row')),
-    el('div',{class:'fr'}, el('button',{class:'btn sm danger',onclick:()=>{ if (s.consultants.length){ toast('Remove the consultants first.'); return; } withPin('delete this team',()=>write(()=>state.db.doc('teams/'+s.id).delete(), s.name+' deleted').then(ok=>{ if(ok){ settingsTeam=''; } })); }},'Delete team'), el('button',{class:'btn primary',onclick:()=>{
+    el('div',{class:'fr'}, el('button',{class:'btn primary',onclick:()=>{
       s.name=tnI.value.trim()||s.name; s.short=tsI.value.trim().toUpperCase()||s.short; s.active=actI.checked; s.anchorDate=anchor.value||s.anchorDate; s.anchorWeek=Number(aw.value); s.oncallWeekday=Number(ocd.value); s.weekendWeek=Number(ww.value);
       s.clinicWeekdays=DNL.map((n,i)=>i).filter(i=>$('#st-cd-'+i).checked);
       s.consultants=s.consultants.filter(c=>c.name.trim()).map(c=>({...c,name:c.name.trim()}));
@@ -794,7 +797,7 @@ render();
   const err=e=>{ console.error(e); if (e&&(e.code==='permission-denied')){ state.canWrite=false; render(); } };
   db.doc('settings/main').onSnapshot(snap=>{ if (snap.exists) state.G={...DEFAULT_G,...snap.data()}; else db.doc('settings/main').set(DEFAULT_G).catch(()=>{}); render(); }, err);
   let seeded=false;
-  db.collection('teams').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]=normTeam({...d.data(),id:d.id}); state.teams=o; if (snap.empty && !seeded){ seeded=true; db.doc('teams/'+DEFAULT_TEAM.id).set(encTeam(DEFAULT_TEAM)).catch(()=>{}); } render(); }, err);
+  db.collection('teams').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]=normTeam({...d.data(),id:d.id}); state.teams=o; if (!seeded){ seeded=true; for (const n of FIXED_TEAMS){ if (!o['team'+n]) db.doc('teams/team'+n).set(encTeam(n===3?DEFAULT_TEAM:fixedTeam(n))).catch(()=>{}); } } render(); }, err);
   const coll=(name,target)=>db.collection(name).onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state[target]=o; render(); }, err);
   coll('overrides','overrides'); coll('weekends','weekends'); coll('clinic','clinic'); coll('leave','leave');
   let firstReq=true;
@@ -805,6 +808,13 @@ render();
   db.collection('accounts').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state.accounts=o; syncAcct(); render(); if (firstAcct){ firstAcct=false; if (!state.acct) setTimeout(openAccount,500); } }, err);
   db.doc('log/recent').onSnapshot(snap=>{ state.log=(snap.exists&&snap.data().entries)||[]; if (state.open) state.open(); }, ()=>{});
 })();
+})();
+
+/* ---------- pull to refresh (home-screen mode has no browser refresh) ---------- */
+(()=>{ const bar=document.getElementById('ptr'); let y0=null, pulled=0; const MAX=70;
+  document.addEventListener('touchstart',e=>{ if (window.scrollY<=0 && !document.querySelector('.sheet')) y0=e.touches[0].clientY; else y0=null; },{passive:true});
+  document.addEventListener('touchmove',e=>{ if (y0===null) return; pulled=Math.max(0,Math.min(MAX,(e.touches[0].clientY-y0)*0.5)); bar.style.height=pulled+'px'; bar.firstChild.textContent=pulled>=MAX?'Release to refresh':'Pull to refresh'; },{passive:true});
+  document.addEventListener('touchend',()=>{ if (y0!==null && pulled>=MAX){ bar.firstChild.textContent='Refreshing…'; setTimeout(()=>location.reload(),150); } else bar.style.height='0'; y0=null; pulled=0; });
 })();
 </script>
 
