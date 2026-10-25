@@ -394,13 +394,13 @@ function renderMonth(){
   const pid=primaryTeamId(); const others=teams().filter(t=>t.id!==pid);
   for (let d=start; d<end; d=addDays(d,1)){
     setTeam(pid); const info=dayInfo(d); const out=d.getUTCMonth()!==viewM; const wk=dow(d)>=5; const teamwk=!!info.weekend; const duty=isDuty(info);
-    const oc=[]; for (const t of others){ setTeam(t.id); oc.push(...otherChips(dayInfo(d),t)); } setTeam(pid);
+    const mkOc=()=>{ const a=[]; for (const t of others){ setTeam(t.id); a.push(...otherChips(dayInfo(d),t)); } setTeam(pid); return a; }; const oc=mkOc(); const oc2=mkOc();
     grid.append(el('button',{class:'cell'+(out?' out':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
       el('div',{class:'dn'}, el('b',{},d.getUTCDate()), dow(d)===0?el('span',{class:'wk'},'WK '+info.wk):''), ...chipsFor(info,true), ...oc));
     if (!out){ const quiet=!duty&&!info.post&&!info.clinic&&!info.leave.length&&!info.pending.length&&!oc.length;
       list.append(el('button',{class:'row'+(quiet?' quiet':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
         el('div',{class:'dn'}, DN[dow(d)], el('b',{},d.getUTCDate())),
-        el('div',{class:'body'}, dow(d)===0?el('div',{class:'wkl'},S().name+' rota week '+info.wk+(info.wk===S().weekendWeek?' · team weekend':'')):null, ...(quiet?[el('span',{class:'note'},'—')]:chipsFor(info,false)), ...oc))); }
+        el('div',{class:'body'}, dow(d)===0?el('div',{class:'wkl'},S().name+' rota week '+info.wk+(info.wk===S().weekendWeek?' · team weekend':'')):null, ...(quiet?[el('span',{class:'note'},'—')]:chipsFor(info,false)), ...oc2))); }
   }
 }
 function renderLegend(){ setTeam(primaryTeamId()); const L=$('#legend'); L.innerHTML=''; const add=(c,t)=>L.append(el('span',{style:'--c:'+c},t));
