@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // The rota app uses these collections only. Everyone with the link can read them;
+    // writes are allowed from the app (the app itself gates changes behind the team passwords).
+    function known(c) {
+      return c in ['settings','teams','overrides','weekends','clinic','leave','requests','accounts','log'];
+    }
+    match /{coll}/{docId} {
+      allow read: if known(coll);
+      allow create, update: if known(coll) && request.resource.data.size() <= 60;
+      // only these can be removed from the app: swaps undone, leave removed, accounts released, requests withdrawn
+      allow delete: if coll in ['overrides','weekends','leave','accounts','requests'];
+    }
+  }
+}

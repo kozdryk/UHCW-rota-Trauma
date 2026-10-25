@@ -5,132 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
-<title>UHCW Trauma Rota</title>
-<style>
-:root{
-  --bg:#f6f7f9; --card:#ffffff; --ink:#15181d; --muted:#6b7280; --line:#e4e7ec;
-  --accent:#1a5fb4; --accent-soft:#e8f0fb; --today:#fff6e5; --today-line:#e8a33d;
-  --weekend:#f2f4f7; --ok:#1f8a4c; --warn:#b42318; --radius:14px;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0f1216; --card:#171b21; --ink:#e8eaed; --muted:#9aa2ae; --line:#272c34;
-    --accent:#6fa8ef; --accent-soft:#1b2a3f; --today:#2b2314; --today-line:#b5862f;
-    --weekend:#141821; --ok:#4ec47f; --warn:#f0776a;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0f1216; --card:#171b21; --ink:#e8eaed; --muted:#9aa2ae; --line:#272c34;
-  --accent:#6fa8ef; --accent-soft:#1b2a3f; --today:#2b2314; --today-line:#b5862f;
-  --weekend:#141821; --ok:#4ec47f; --warn:#f0776a;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{
-  background:var(--bg); color:var(--ink);
-  font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  -webkit-text-size-adjust:100%;
-}
-.wrap{max-width:720px;margin:0 auto;padding:16px 16px 96px}
-header{display:flex;align-items:flex-start;gap:12px;margin:8px 0 18px}
-h1{font-size:20px;line-height:1.2;margin:0;letter-spacing:-.01em}
-.sub{color:var(--muted);font-size:13px;margin-top:3px}
-.spacer{flex:1}
-button{font:inherit;cursor:pointer;border-radius:999px;border:1px solid var(--line);
-  background:var(--card);color:var(--ink);padding:9px 14px;min-height:40px}
-button:active{transform:translateY(1px)}
-.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn-ghost{background:transparent}
-.week{margin-bottom:22px}
-.week h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
-  margin:0 0 8px 2px;font-weight:600}
-.days{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-.day{display:flex;gap:12px;align-items:center;width:100%;text-align:left;
-  padding:12px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;
-  border-radius:0;min-height:60px}
-.day:last-child{border-bottom:0}
-.day.weekend{background:var(--weekend)}
-.day.today{background:var(--today);box-shadow:inset 3px 0 0 var(--today-line)}
-.date{width:62px;flex:0 0 62px}
-.dow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.dnum{font-size:17px;font-weight:650;line-height:1.1}
-.slots{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
-.slot{display:inline-flex;align-items:baseline;gap:5px;background:var(--accent-soft);
-  border-radius:8px;padding:3px 8px;max-width:100%}
-.slot .lab{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-.slot .val{font-size:14px;font-weight:650;letter-spacing:.01em}
-.slot.empty{background:transparent;border:1px dashed var(--line)}
-.slot.empty .val{color:var(--muted);font-weight:400}
-.chev{color:var(--muted);flex:0 0 auto}
-.status{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);
-  margin:0 2px 14px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 auto}
-.dot.live{background:var(--ok)} .dot.bad{background:var(--warn)}
-.sheet-bg{position:fixed;inset:0;background:rgba(10,12,16,.45);opacity:0;pointer-events:none;
-  transition:opacity .18s ease;z-index:40}
-.sheet-bg.open{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);
-  border-radius:18px 18px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));
-  transform:translateY(102%);transition:transform .22s ease;max-height:86vh;overflow:auto;
-  border-top:1px solid var(--line)}
-.sheet.open{transform:translateY(0)}
-@media(min-width:620px){
-  .sheet{left:50%;right:auto;bottom:auto;top:50%;width:460px;max-width:calc(100vw - 32px);
-    border-radius:18px;border:1px solid var(--line);transform:translate(-50%,-44%) scale(.98);
-    opacity:0;transition:opacity .18s ease, transform .18s ease}
-  .sheet.open{transform:translate(-50%,-50%) scale(1);opacity:1}
-}
-.sheet h3{margin:0 0 2px;font-size:18px}
-.sheet .when{color:var(--muted);font-size:13px;margin-bottom:16px}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;
-  color:var(--muted);margin-bottom:5px;font-weight:600}
-.field .read{font-size:17px;font-weight:600}
-.field .read .surname{font-weight:400;color:var(--muted)}
-.field .read.none{font-weight:400;color:var(--muted)}
-input[type=text],input[type=password],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);
-  border:1px solid var(--line);border-radius:10px;padding:11px 12px;min-height:44px}
-textarea{min-height:130px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px}
-input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
-.hint{font-size:12px;color:var(--muted);margin-top:5px}
-.row{display:flex;gap:10px;margin-top:18px}
-.row button{flex:1}
-.locked-note{background:var(--accent-soft);border-radius:10px;padding:11px 12px;
-  font-size:13px;color:var(--muted);margin-bottom:4px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
-  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;
-  opacity:0;pointer-events:none;transition:all .2s ease;z-index:60;max-width:calc(100vw - 32px)}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.foot{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>UHCW Trauma Rota</h1>
-      <div class="sub" id="range">&nbsp;</div>
-    </div>
-    <div class="spacer"></div>
-    <button id="lockBtn" class="btn-ghost">Unlock</button>
-  </header>
-
-  <div class="status"><span class="dot" id="dot"></span><span id="statusText">Connecting&hellip;</span></div>
-
-  <main id="weeks"></main>
-
-  <div class="foot">
-    Initials only. Tap a day for surnames.<br>
-    Link holders can view; the passphrase is needed to change anything.
-  </div>
-</div>
-
-<div class="sheet-bg" id="sheetBg"></div>
-<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
-<div class="toast" id="toast"></div>
-
-<script type="module">
-const firebaseConfig = {
+<meta name="theme-color" content="#005eb8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UHCW Rota">
+<title>UHCW T&amp;O On-Call Rota</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23005eb8'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='28' font-weight='700' fill='white' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore-compat.js"></script>
+<script>
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCU0XGdn9d0khs2Qm8t2nzbHN36vlVtia0",
   authDomain: "uhcw-trauma-rota.firebaseapp.com",
   projectId: "uhcw-trauma-rota",
@@ -138,346 +23,803 @@ const firebaseConfig = {
   messagingSenderId: "236697279013",
   appId: "1:236697279013:web:6359c21432a540fe2f7dcc"
 };
+</script>
+<style>
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;font-size:14px;font-family:system-ui,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
 
-const PASS_HASH = "52158fa699214064c035a8a1929b141b85e09bb1dfbc109423a008e88b9e4b18";
-const WEEKS = 4;
+/* Layout: a sticky team bar, a "right now" strip, then one calendar (7-col grid on desktop, day list on phone). Tapping a day opens a bottom sheet editor. Writes are gated by a claimed account + shared password. */
+:root{
+  --bg:#f0f4f5; --card:#ffffff; --fg:#212b32; --mute:#4c6272; --line:#d8dde0; --soft:#e8edef;
+  --nhs:#005eb8; --nhs-dark:#003087; --nhs-ink:#ffffff;
+  --accent:#005eb8; --accent-ink:#ffffff;
+  --oncall:#003087; --oncall-bg:#dbe6f4;
+  --long:#330072; --long-bg:#e9e2f3;
+  --short:#b35c00; --short-bg:#fff0d1;
+  --clinic:#007f3b; --clinic-bg:#dcefe4;
+  --leave:#4c6272; --leave-bg:#e8edef;
+  --warn:#da291c; --warn-bg:#fbe4e2; --duty-bg:#fdf3f2;
+  --pend:#8a6000; --pend-bg:#fff1c9;
+  --swap:#ed8b00;
+  --today:#005eb8;
+  --display:"Source Sans 3",Frutiger,Arial,sans-serif; --body:"Source Sans 3",Frutiger,Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1a24; --card:#172634; --fg:#e9eef2; --mute:#9fb0bd; --line:#2b3d4d; --soft:#20303f;
+  --nhs:#003087; --nhs-dark:#00205b; --nhs-ink:#ffffff;
+  --accent:#41b6e6; --accent-ink:#0b1416;
+  --oncall:#8fc3f2; --oncall-bg:#1a3457;
+  --long:#c9b4ea; --long-bg:#352552;
+  --short:#f7bf6b; --short-bg:#4a3215;
+  --clinic:#7fd1a2; --clinic-bg:#173d2a;
+  --leave:#aab7c1; --leave-bg:#2b3a46;
+  --warn:#ff7b6e; --warn-bg:#4a2120; --duty-bg:#2a1d1f;
+  --pend:#f2d16b; --pend-bg:#4a3f14;
+  --swap:#f3a764;
+  --today:#41b6e6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a24; --card:#172634; --fg:#e9eef2; --mute:#9fb0bd; --line:#2b3d4d; --soft:#20303f;
+  --nhs:#003087; --nhs-dark:#00205b; --nhs-ink:#ffffff;
+  --accent:#41b6e6; --accent-ink:#0b1416;
+  --oncall:#8fc3f2; --oncall-bg:#1a3457;
+  --long:#c9b4ea; --long-bg:#352552;
+  --short:#f7bf6b; --short-bg:#4a3215;
+  --clinic:#7fd1a2; --clinic-bg:#173d2a;
+  --leave:#aab7c1; --leave-bg:#2b3a46;
+  --warn:#ff7b6e; --warn-bg:#4a2120; --duty-bg:#2a1d1f;
+  --pend:#f2d16b; --pend-bg:#4a3f14;
+  --swap:#f3a764;
+  --today:#41b6e6; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--nhs)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--nhs);color:var(--nhs-ink);border-bottom:4px solid var(--nhs-dark)}
+.topbar .btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:var(--nhs-ink)}
+.topbar .btn:hover{background:rgba(255,255,255,.22)}
+.topbar .who b{color:var(--nhs-ink)}
+.topbar .badge{background:#ffb81c;color:#212b32}
+.topbar .trust{font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.85;font-weight:600}
+.topbar .wrap{display:flex;align-items:center;gap:8px;padding-block:10px;flex-wrap:wrap}
+.topbar h1{font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.topbar .sub{color:var(--nhs-ink);opacity:.9;font-size:13px}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:4px;padding:7px 12px;font-weight:600;font-size:14px;line-height:1.2;display:inline-flex;align-items:center;gap:6px;position:relative}
+.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--clinic);color:#fff;border-color:var(--clinic);box-shadow:0 2px 0 #00401d}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--warn);border-color:var(--warn)}
+.btn.sm{padding:4px 9px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:default}
+.badge{background:var(--warn);color:#fff;border-radius:10px;font-size:11px;padding:0 6px;line-height:16px;min-width:16px;text-align:center}
+.who{font-size:13px;color:var(--mute);display:flex;align-items:center;gap:6px}
+.who b{color:var(--fg)}
+.now{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;padding-block:14px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.tile .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.tile .v{font-family:var(--display);font-size:17px;font-weight:600;margin-top:2px;overflow-wrap:anywhere}
+.tile .d{font-size:13px;color:var(--mute)}
+.tile.alert{border-color:var(--warn);background:var(--warn-bg)}
+.tile.pend{border-color:var(--pend);background:var(--pend-bg)}
+.tile button{margin-top:6px}
+.nav{display:flex;align-items:center;gap:8px;padding-block:4px 10px;flex-wrap:wrap}
+.nav h2{font-size:20px;font-weight:700;min-width:12ch}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mute);padding-block:0 10px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:1px 6px;font-size:12px;font-weight:600;line-height:1.5;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip.oncall{background:var(--oncall-bg);color:var(--oncall)}
+.chip.long{background:var(--long-bg);color:var(--long)}
+.chip.short{background:var(--short-bg);color:var(--short)}
+.chip.clinic{background:var(--clinic-bg);color:var(--clinic)}
+.chip.leave{background:var(--leave-bg);color:var(--leave)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.pend{background:var(--pend-bg);color:var(--pend)}
+.chip.post{background:var(--soft);color:var(--fg)}
+.chip.other{background:var(--soft);color:var(--mute);font-weight:500}
+.chip .sw{font-size:10px;color:var(--swap);font-weight:700}
+.chip.me{outline:2px solid var(--accent);outline-offset:-1px}
+.grid{display:none;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;padding-bottom:24px}
+.grid .dh{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);font-weight:600;padding:4px 6px}
+.cell{background:var(--card);border:1px solid var(--line);border-radius:8px;min-height:96px;padding:6px;display:flex;flex-direction:column;gap:3px;text-align:left;min-width:0;position:relative}
+.cell:hover{border-color:var(--accent)}
+.cell.out{opacity:.45}
+.cell.wkend{background:var(--soft)}
+.cell.teamwk{background:var(--card);box-shadow:inset 0 3px 0 var(--long)}
+.cell .dn{font-family:var(--mono);font-size:12px;color:var(--mute);display:flex;justify-content:space-between;align-items:center}
+.cell .wk{font-size:10px;letter-spacing:.05em}
+.cell.today .dn b{background:var(--today);color:var(--accent-ink);border-radius:5px;padding:0 5px}
+.list{display:flex;flex-direction:column;gap:6px;padding-bottom:90px}
+.row{display:grid;grid-template-columns:52px 1fr;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:left;min-width:0;align-items:start}
+.row.quiet{opacity:.75}
+.row.wkend{background:var(--soft)}
+.row.teamwk{box-shadow:inset 3px 0 0 var(--long)}
+.row .dn{font-family:var(--mono);font-size:12px;color:var(--mute);line-height:1.2}
+.row .dn b{display:block;font-size:18px;color:var(--fg);font-weight:600}
+.row.today .dn b{color:var(--today)}
+.row .body{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+.row .wkl{font-size:11px;color:var(--mute);width:100%}
+@media (min-width:760px){.grid{display:grid}.list{display:none}}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--card);border-radius:16px 16px 0 0;max-height:88vh;overflow:auto;border-top:1px solid var(--line);padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+@media (min-width:760px){.sheet{left:50%;right:auto;bottom:auto;top:8vh;transform:translateX(-50%);width:min(680px,94vw);border-radius:14px;max-height:84vh}}
+.sheet .hd{position:sticky;top:0;background:var(--card);display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);z-index:1}
+.sheet .hd h2{font-size:18px;flex:1;min-width:0}
+.sheet .bd{padding:12px 16px;display:flex;flex-direction:column;gap:14px}
+.sec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.sec.hl{border-color:var(--accent)}
+.sec h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sec h3 .st{margin-left:auto;font-family:var(--body);letter-spacing:0;text-transform:none;font-size:13px}
+.fr{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fr label{font-size:13px;color:var(--mute)}
+.inp{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--bg);min-width:0;max-width:100%}
+.inp.grow{flex:1;min-width:140px}
+.big{font-family:var(--display);font-size:18px;font-weight:600}
+.note{font-size:13px;color:var(--mute)}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.tog:first-of-type{border-top:0}
+.tog .nm{font-weight:600}
+.tog .why{font-size:12px;color:var(--mute)}
+.sw3{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.sw3 button{border:0;background:transparent;padding:5px 10px;font-size:13px;font-weight:600;color:var(--mute)}
+.sw3 button.on{background:var(--clinic-bg);color:var(--clinic)}
+.sw3 button.off{background:var(--leave-bg);color:var(--leave)}
+.cnt{font-weight:700}
+.cnt.bad{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mute);font-weight:600}
+.tw{overflow-x:auto}
+td .inp{width:100%}
+td .inp.sm{width:5.5em}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:14px;z-index:40;max-width:90vw}
+.ro{font-size:12px;color:var(--mute);border:1px dashed var(--line);border-radius:8px;padding:6px 10px}
+.log{font-size:13px;display:flex;flex-direction:column;gap:4px;max-height:40vh;overflow:auto}
+.log div{border-bottom:1px solid var(--line);padding:4px 0;color:var(--mute)}
+.log b{color:var(--fg);font-weight:600}
+.req{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.req.pending{border-color:var(--pend)}
+.req .t{font-weight:600}
+.req .m{font-size:13px;color:var(--mute)}
+.pinbox{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:16px}
+.pinbox .card{background:var(--card);border-radius:14px;padding:18px;max-width:360px;width:100%;display:flex;flex-direction:column;gap:10px;border:1px solid var(--line)}
+.pinbox h3{font-size:16px}
+/* team duty days: red */
+.cell.duty{border-color:var(--warn);box-shadow:inset 0 3px 0 var(--warn);background:var(--duty-bg)}
+.cell.duty .dn b{color:var(--warn)}
+.cell.duty.today .dn b{background:var(--warn);color:#fff}
+.row.duty{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn);background:var(--duty-bg)}
+.row.duty .dn b{color:var(--warn)}
+.legend span.sq::before{border-radius:3px}
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:8;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+@media (min-width:760px){.fab{display:none}}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(20px);opacity:0}}@media (min-width:760px){.sheet{animation:none}}}
+</style>
+</head>
+<body>
 
-let db = null, rota = null, doc, setDoc, onSnapshot, serverTimestamp;
 
-const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+<div class="topbar"><div class="wrap">
+  <div><div class="trust">University Hospitals Coventry and Warwickshire NHS Trust</div><h1 id="teamName">On-Call Rota</h1><div class="sub" id="teamSub">Trauma &amp; Orthopaedics</div></div>
+  <div class="spacer"></div>
+  <button class="btn sm who" id="btnAccount">Sign in</button>
+  <button class="btn sm" id="btnRequests">Notifications</button>
+  <button class="btn sm" id="btnLeave">Leave</button>
+  <button class="btn sm" id="btnExport">Calendar file</button>
+  <button class="btn sm" id="btnLog">Changes</button>
+  <button class="btn sm" id="btnSettings" hidden>Settings</button>
+</div></div>
 
-const $ = (id) => document.getElementById(id);
-const iso = (d) => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-const isWeekend = (d) => d.getDay() === 0 || d.getDay() === 6;
-const slotsFor = (d) => isWeekend(d)
-  ? [{k:"trauma", l:"Trauma 1"}, {k:"trauma2", l:"Trauma 2"}]
-  : [{k:"trauma", l:"Trauma"}, {k:"clinic", l:"Fracture clinic"}];
+<div class="wrap">
+  <div class="now" id="now"></div>
+  <div class="nav">
+    <button class="btn sm" id="prev" aria-label="Previous month">&#8249;</button>
+    <h2 id="monthTitle">—</h2>
+    <button class="btn sm" id="next" aria-label="Next month">&#8250;</button>
+    <button class="btn sm" id="todayBtn">Today</button>
+    <label class="who" id="teamPick" hidden>Highlight <select class="inp" id="teamSel"></select></label>
+    <div class="spacer"></div>
+    <div id="roNote" class="ro" hidden></div>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div class="grid" id="grid"></div>
+  <div class="list" id="list"></div>
+</div>
+<button class="btn primary fab" id="fabToday">Today</button>
+<div id="modal"></div>
+<div id="pin"></div>
+<div id="toast" class="toast" hidden></div>
 
-let data = {};            // docId -> fields
-let names = {};           // INITIALS -> surname
-let unlocked = sessionStorage.getItem("rota-unlocked") === "1";
-let me = localStorage.getItem("rota-me") || "";
-let openDay = null;
+<script>
+(() => {
+'use strict';
+const DAY = 86400000;
+const $ = (s, r=document) => r.querySelector(s);
+const el = (tag, attrs={}, ...kids) => { const e=document.createElement(tag); for (const [k,v] of Object.entries(attrs)) { if (k==='class') e.className=v; else if (k==='html') e.innerHTML=v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else if (v!==false && v!=null) e.setAttribute(k, v===true?'':v); } for (const k of kids.flat()) if (k!=null) e.append(k.nodeType?k:document.createTextNode(String(k))); return e; };
 
-function days(){
-  const out = [], t = new Date(); t.setHours(0,0,0,0);
-  const start = new Date(t);
-  start.setDate(t.getDate() - ((t.getDay() + 6) % 7));   // Monday of this week
-  for (let i = 0; i < WEEKS * 7; i++){
-    const d = new Date(start); d.setDate(start.getDate() + i); out.push(d);
+/* ---------- defaults ---------- */
+const DEFAULT_G = { appName:'UHCW T&O On-Call Rota', subtitle:'Trauma & Orthopaedics · all teams', pin:'ROTA', adminPin:'ROTAUHCW', emailDomain:'uhcw.nhs.uk' };
+const DEFAULT_TEAM = {
+  id:'team3', name:'Team 3', short:'T3', active:true, order:3,
+  anchorDate:'2026-11-04', anchorWeek:4, oncallWeekday:2, clinicWeekdays:[2], weekendWeek:3,
+  consultants:[
+    { id:'isaac',    name:'Mr Isaac',    short:'RI', slot:1, clinic:true },
+    { id:'rupani',   name:'Mr Rupani',   short:'NR', slot:2, clinic:true },
+    { id:'elsayed',  name:'Mr Elsayed',  short:'HE', slot:3, clinic:true },
+    { id:'kozdryk',  name:'Mr Kozdryk',  short:'JK', slot:4, clinic:true },
+    { id:'dhukaram', name:'Mr Dhukaram', short:'VD', slot:0, clinic:true },
+    { id:'young',    name:'Mr Young',    short:'JY', slot:0, clinic:true },
+  ],
+  weekendPattern:[[1,3],[4,2],[3,1],[2,4]],
+};
+const blankTeam = (id, n) => ({ id, name:'Team '+n, short:'T'+n, active:true, order:n, anchorDate:'2026-11-04', anchorWeek:4, oncallWeekday:2, clinicWeekdays:[2], weekendWeek:3, consultants:[], weekendPattern:[[1,2],[3,4],[2,1],[4,3]] });
+
+/* ---------- state ---------- */
+const state = { G: {...DEFAULT_G}, teams:{}, overrides:{}, weekends:{}, clinic:{}, leave:{}, requests:{}, accounts:{}, log:[], db:null, acct:null, login:'', canWrite:true, open:null, seenLocal:'', viewTeam:'', sheetTeam:'' };
+try { state.login = localStorage.getItem('rota.login') || ''; state.seenLocal = localStorage.getItem('rota.seen') || ''; state.viewTeam = localStorage.getItem('rota.viewTeam') || ''; } catch(e) {}
+const unlocked = () => { try { return sessionStorage.getItem('rota.unlocked')==='1'; } catch(e){ return false; } };
+const emailKey = em => (em||'').trim().toLowerCase();
+
+/* ---------- date helpers ---------- */
+const ymd = d => d.toISOString().slice(0,10);
+const parse = s => { const [y,m,d]=s.split('-').map(Number); return new Date(Date.UTC(y,m-1,d)); };
+const addDays = (d,n) => new Date(d.getTime()+n*DAY);
+const dow = d => (d.getUTCDay()+6)%7;
+const mondayOf = d => addDays(d,-dow(d));
+const todayKey = () => { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; };
+const DN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DNL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const fmtLong = d => `${DNL[dow(d)]} ${d.getUTCDate()} ${MN[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+const fmtShort = d => `${DN[dow(d)]} ${d.getUTCDate()} ${MN[d.getUTCMonth()].slice(0,3)}`;
+const fmtKey = k => fmtShort(parse(k));
+const nowIso = () => new Date().toISOString();
+
+/* ---------- teams & engine (S() = the team currently being worked on) ---------- */
+const G = () => state.G;
+const teams = () => { const list=Object.values(state.teams).filter(t=>t.active!==false); return (list.length?list:[DEFAULT_TEAM]).sort((a,b)=>(a.order||0)-(b.order||0)); };
+const teamById = id => teams().find(t=>t.id===id) || null;
+let CT = null;
+const S = () => CT || teams()[0];
+const setTeam = id => { CT = teamById(id) || teams()[0]; };
+const allCons = () => teams().flatMap(t=>t.consultants.map(c=>({...c,team:t.id})));
+const cons = () => S().consultants;
+const byId = id => allCons().find(c=>c.id===id) || null;
+const teamOf = id => (byId(id)||{}).team || '';
+const bySlot = n => cons().find(c=>c.slot===n) || null;
+const nameOf = id => (byId(id)||{}).name || (id==='admin'?'Administrator':(id ? '(removed)' : '—'));
+const shortOf = id => (byId(id)||{}).short || (byId(id)||{}).name || '?';
+const dk = key => S().id+'~'+key;
+function cycleStart(){ const mon=mondayOf(parse(S().anchorDate)); return addDays(mon,-(S().anchorWeek-1)*7); }
+function weekInfo(d){ const mon=mondayOf(d); const w=Math.round((mon-cycleStart())/(7*DAY)); return { wk:((w%4)+4)%4+1, cycle:Math.floor(w/4), mon }; }
+function onLeave(id, key){ return Object.values(state.leave).some(l=>l.who===id && l.from<=key && l.to>=key); }
+function leaveOn(key){ const ids=new Set(cons().map(c=>c.id)); return Object.values(state.leave).filter(l=>ids.has(l.who) && l.from<=key && l.to>=key); }
+function weekendFor(d){
+  const wi=weekInfo(d); const dd=dow(d);
+  if (dd<4 || wi.wk!==S().weekendWeek) return null;
+  const fri=addDays(wi.mon,4); const friKey=ymd(fri);
+  const pat=S().weekendPattern||[]; const p=pat.length?pat[((wi.cycle%pat.length)+pat.length)%pat.length]:[0,0];
+  const base={ long:(bySlot(p[0])||{}).id||'', short:(bySlot(p[1])||{}).id||'' };
+  const ov=state.weekends[dk(friKey)]||null;
+  return { friKey, fri, long:(ov&&ov.long)||base.long, short:(ov&&ov.short)||base.short, baseLong:base.long, baseShort:base.short, override:ov };
+}
+function postTakeFor(d){ if (dow(d)!==0) return null; return weekendFor(addDays(d,-1)); }
+function pendingFor(key){ return Object.values(state.requests).filter(r=>r.status==='pending'&&r.type==='swap'&&r.team===S().id&&((r.give&&r.give.date===key)||(r.take&&r.take.date===key))); }
+function dayInfo(d){
+  const key=ymd(d); const wi=weekInfo(d); const dd=dow(d);
+  const info={ team:S().id, key, d, wk:wi.wk, cycle:wi.cycle, dow:dd, oncall:null, weekend:null, post:null, clinic:null, leave:leaveOn(key), pending:[] };
+  if (dd===S().oncallWeekday){ const base=(bySlot(wi.wk)||{}).id||''; const ov=state.overrides[dk(key)]||null; info.oncall={ id:(ov&&ov.oncall)||base, base, override:ov }; }
+  const w=weekendFor(d); if (w) info.weekend=w;
+  const pt=postTakeFor(d); if (pt) info.post=pt;
+  if ((S().clinicWeekdays||[]).includes(dd)){
+    const busy=new Set(); if (info.oncall) busy.add(info.oncall.id);
+    if (w){ if (dd===4||dd===6) busy.add(w.long); if (dd===5) busy.add(w.short); }
+    const rec=state.clinic[dk(key)]||{}; const pres=rec.present||{}; const present=[], absent=[];
+    for (const c of cons()){ let on; if (pres[c.id]===true) on=true; else if (pres[c.id]===false) on=false; else on = !!c.clinic && !busy.has(c.id) && !onLeave(c.id,key); (on?present:absent).push(c.id); }
+    info.clinic={ present, absent, busy, registrar:rec.registrar||'', note:rec.note||'', rec };
   }
+  info.pending=pendingFor(key); if (w) info.pending=info.pending.concat(pendingFor(w.friKey).filter(r=>!info.pending.includes(r)));
+  return info;
+}
+const isDuty = info => !!(info.oncall || info.weekend);
+function whoIsBusy(info, id){
+  if (info.oncall && info.oncall.id===id) return 'on call (theatre)';
+  if (info.weekend){ if ((info.dow===4||info.dow===6)&&info.weekend.long===id) return 'long weekend on call'; if (info.dow===5&&info.weekend.short===id) return 'short weekend on call'; }
+  if (onLeave(id,info.key)) return 'away';
+  return '';
+}
+function dutiesOn(info){
+  const out=[]; const t=S().id;
+  if (info.oncall && info.oncall.id) out.push({team:t,kind:'oncall',date:info.key,holder:info.oncall.id,label:'On call '+fmtKey(info.key)});
+  if (info.weekend){ const w=info.weekend; if (w.long) out.push({team:t,kind:'weekend',date:w.friKey,role:'long',holder:w.long,label:'Long weekend '+fmtKey(w.friKey)}); if (w.short) out.push({team:t,kind:'weekend',date:w.friKey,role:'short',holder:w.short,label:'Short weekend '+fmtKey(w.friKey)}); }
   return out;
 }
+function dutiesOf(id, fromKey, days){ const out=[]; const seen=new Set(); const t=teamOf(id); if (!t) return out; const prev=CT; setTeam(t); for (let d=parse(fromKey),i=0;i<days;i++,d=addDays(d,1)){ for (const du of dutiesOn(dayInfo(d))) if (du.holder===id){ const k=du.kind+du.date+(du.role||''); if(!seen.has(k)){ seen.add(k); out.push(du); } } } CT=prev; return out; }
+function holderOf(duty){ const prev=CT; setTeam(duty.team); const info=dayInfo(parse(duty.date)); let h; if (duty.kind==='oncall') h=info.oncall?info.oncall.id:''; else { const w=weekendFor(parse(duty.date)); h=w?w[duty.role]:''; } CT=prev; return h; }
 
-function toast(msg){
-  const el = $("toast"); el.textContent = msg; el.classList.add("show");
-  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 2600);
+/* ---------- permissions ---------- */
+const acct = () => state.acct;
+const isAdmin = () => !!(acct()&&acct().role==='admin');
+const myId = () => (acct()&&acct().consultant)||'';
+const myTeam = () => (acct()&&acct().team)||teamOf(myId())||'';
+const isSec = () => !!(acct()&&acct().role==='secretary');
+const canWriteAny = () => state.canWrite && !!acct();
+const canEditDuty = () => canWriteAny() && isAdmin();
+const canClinic = id => canWriteAny() && (isAdmin() || myId()===id);
+const canLeave = id => canWriteAny() && (isAdmin() || (isSec() && myTeam()===teamOf(id)) || myId()===id);
+const canNotes = () => canWriteAny() && (isAdmin() || myTeam()===S().id);
+const canDecide = r => canWriteAny() && (isAdmin() || (r.to===myId() && r.to!=='admin'));
+const actor = () => acct() ? (acct().consultant ? nameOf(acct().consultant) : (acct().name||'Secretary')) : 'Someone';
+const pwFor = role => role==='admin' ? (G().adminPin||'ROTAUHCW') : (G().pin||'ROTA');
+const pwMatches = (pw, role) => (pw||'').trim().toLowerCase()===pwFor(role).toLowerCase();
+const primaryTeamId = () => { const t = teamById(state.viewTeam) ? state.viewTeam : (teamById(myTeam()) ? myTeam() : teams()[0].id); return t; };
+
+/* ---------- rendering ---------- */
+let viewY, viewM; { const t=parse(todayKey()); viewY=t.getUTCFullYear(); viewM=t.getUTCMonth(); }
+function chip(cls, txt, id, swapped){ const c=el('span',{class:'chip '+cls+(id&&id===myId()?' me':'')}, txt); if (swapped) c.append(el('span',{class:'sw'},' ⇄')); return c; }
+function chipsFor(info, compact){
+  const out=[]; const N=compact?shortOf:nameOf;
+  if (info.oncall) out.push(chip('oncall', (compact?'OC ':'On call: ')+N(info.oncall.id), info.oncall.id, !!info.oncall.override));
+  if (info.weekend){ const w=info.weekend, sw=!!w.override;
+    if (info.dow===4) out.push(chip('long',(compact?'L ':'Long: ')+N(w.long)+(compact?'':' · on call + trauma'),w.long,sw));
+    if (info.dow===5){ out.push(chip('short',(compact?'S ':'Short: ')+N(w.short)+(compact?'':' · on call + trauma'),w.short,sw)); out.push(chip('long',(compact?'L ':'Long: ')+N(w.long)+(compact?' WR':' · ward round am'),w.long,sw)); }
+    if (info.dow===6){ out.push(chip('long',(compact?'L ':'Long: ')+N(w.long)+(compact?'':' · on call + trauma'),w.long,sw)); out.push(chip('short',(compact?'S ':'Short: ')+N(w.short)+(compact?' WR':' · ward round'),w.short,sw)); } }
+  if (info.post) out.push(chip('post',(compact?'PT ':'Post-take + VFC: ')+N(info.post.long),info.post.long,!!info.post.override));
+  if (info.clinic){ const n=info.clinic.present.length; if (n===0) out.push(chip('warn', compact?'Clinic: none!':'Fracture clinic: no consultant')); else out.push(chip('clinic',(compact?'FC ':'Fracture clinic: ')+info.clinic.present.map(N).join(compact?' ':', ')+(info.clinic.registrar&&!compact?' · Reg: '+info.clinic.registrar:''))); }
+  for (const l of info.leave) out.push(chip('leave',N(l.who)+' '+(compact?'away':(l.type||'away'))));
+  if (info.pending.length) out.push(chip('pend', compact?'Swap pending':'Swap pending: '+info.pending.map(r=>N(r.from)+' → '+N(r.to)).join(', ')));
+  return out;
 }
-
-async function sha256(s){
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join("");
+/* other teams: on-call only, muted, tagged with the team's short name */
+function otherChips(info, t){
+  const out=[]; const tag=(t.short||t.name)+' ';
+  if (info.oncall) out.push(el('span',{class:'chip other'},tag+'OC '+shortOf(info.oncall.id)));
+  if (info.weekend){ const w=info.weekend; if (info.dow===4) out.push(el('span',{class:'chip other'},tag+'L '+shortOf(w.long))); if (info.dow===5) out.push(el('span',{class:'chip other'},tag+'S '+shortOf(w.short)+' · L '+shortOf(w.long)+' WR')); if (info.dow===6) out.push(el('span',{class:'chip other'},tag+'L '+shortOf(w.long)+' · S '+shortOf(w.short)+' WR')); }
+  return out;
 }
-
-function parseNames(txt){
-  const map = {};
-  (txt || "").split(/\r?\n/).forEach(line => {
-    const m = line.match(/^\s*([^=:]+)\s*[=:]\s*(.+?)\s*$/);
-    if (m) map[m[1].trim().toUpperCase()] = m[2].trim();
-  });
-  return map;
+function renderNow(){
+  const box=$('#now'); box.innerHTML=''; setTeam(primaryTeamId());
+  const t=parse(todayKey()); const key=ymd(t); const wi=weekInfo(t);
+  const thisWeekOC=dayInfo(addDays(wi.mon,S().oncallWeekday));
+  box.append(el('div',{class:'tile'}, el('div',{class:'k'},S().name+' · this week'), el('div',{class:'v'},'Week '+wi.wk+' · '+nameOf(thisWeekOC.oncall?thisWeekOC.oncall.id:'')), el('div',{class:'d'},'On call '+DNL[S().oncallWeekday]+' '+fmtShort(thisWeekOC.d))));
+  let w=null; for (let i=0;i<10 && !w;i++){ const cand=addDays(wi.mon,4+i*7); if (cand>=addDays(t,-2)) { const ww=weekendFor(cand); if (ww) w=ww; } }
+  if (w) box.append(el('div',{class:'tile'}, el('div',{class:'k'},(w.fri<=t&&addDays(w.fri,2)>=t)?'This weekend':'Next '+S().name+' weekend'), el('div',{class:'v'},fmtShort(w.fri)+' – '+fmtShort(addDays(w.fri,2))), el('div',{class:'d'},'Long: '+nameOf(w.long)+' · Short: '+nameOf(w.short))));
+  let cd=null; for (let i=0;i<8;i++){ const inf=dayInfo(addDays(t,i)); if (inf.clinic){ cd=inf; break; } }
+  if (cd){ const n=cd.clinic.present.length; box.append(el('div',{class:'tile'+(n===0?' alert':'')}, el('div',{class:'k'},cd.key===key?'Fracture clinic today':'Next fracture clinic · '+fmtShort(cd.d)), el('div',{class:'v'},n===0?'No consultant':cd.clinic.present.map(nameOf).join(', ')), el('div',{class:'d'},(cd.clinic.registrar?'Registrar: '+cd.clinic.registrar+' · ':'')+'Tap the day to change'))); }
+  const inbox=myInbox(); const news=myNews(); if (inbox.length||news.length) box.append(el('div',{class:'tile pend'}, el('div',{class:'k'},'Notifications'), el('div',{class:'v'},(inbox.length?inbox.length+' to approve or decline':'')+(inbox.length&&news.length?' · ':'')+(news.length?news.length+' new decision'+(news.length===1?'':'s'):'')), el('button',{class:'btn sm',onclick:openRequests},'Open')));
+  const away=leaveOn(key); if (away.length) box.append(el('div',{class:'tile'}, el('div',{class:'k'},'Away today'), el('div',{class:'v'},away.map(l=>nameOf(l.who)).join(', '))));
 }
-const surname = (ini) => names[(ini||"").trim().toUpperCase()] || "";
-
-function render(){
-  const all = days(), todayISO = iso(new Date()), weeks = $("weeks");
-  weeks.innerHTML = "";
-  $("range").textContent = fmtRange(all[0], all[all.length-1]);
-
-  for (let w = 0; w < WEEKS; w++){
-    const block = all.slice(w*7, w*7+7);
-    const sec = document.createElement("section");
-    sec.className = "week";
-    const h = document.createElement("h2");
-    h.textContent = "Week of " + DOW[block[0].getDay()] + " " + block[0].getDate() + " " + MON[block[0].getMonth()];
-    sec.appendChild(h);
-
-    const list = document.createElement("div");
-    list.className = "days";
-    block.forEach(d => {
-      const id = iso(d), rec = data[id] || {};
-      const btn = document.createElement("button");
-      btn.className = "day" + (isWeekend(d) ? " weekend" : "") + (id === todayISO ? " today" : "");
-      btn.onclick = () => openSheet(d);
-
-      const dt = document.createElement("div");
-      dt.className = "date";
-      dt.innerHTML = '<div class="dow"></div><div class="dnum"></div>';
-      dt.querySelector(".dow").textContent = DOW[d.getDay()];
-      dt.querySelector(".dnum").textContent = d.getDate() + " " + MON[d.getMonth()];
-      btn.appendChild(dt);
-
-      const sl = document.createElement("div");
-      sl.className = "slots";
-      slotsFor(d).forEach(s => {
-        const v = (rec[s.k] || "").trim();
-        const chip = document.createElement("span");
-        chip.className = "slot" + (v ? "" : " empty");
-        chip.innerHTML = '<span class="lab"></span><span class="val"></span>';
-        chip.querySelector(".lab").textContent = s.l;
-        chip.querySelector(".val").textContent = v || "—";
-        sl.appendChild(chip);
-      });
-      btn.appendChild(sl);
-
-      const chev = document.createElement("span");
-      chev.className = "chev"; chev.textContent = "›";
-      btn.appendChild(chev);
-
-      list.appendChild(btn);
-    });
-    sec.appendChild(list);
-    weeks.appendChild(sec);
+function renderMonth(){
+  $('#monthTitle').textContent=MN[viewM]+' '+viewY;
+  const first=new Date(Date.UTC(viewY,viewM,1)); const start=mondayOf(first); const tk=todayKey();
+  const grid=$('#grid'); grid.innerHTML=''; for (const n of DN) grid.append(el('div',{class:'dh'},n));
+  const list=$('#list'); list.innerHTML='';
+  const last=new Date(Date.UTC(viewY,viewM+1,0)); const end=addDays(mondayOf(last),7);
+  const pid=primaryTeamId(); const others=teams().filter(t=>t.id!==pid);
+  for (let d=start; d<end; d=addDays(d,1)){
+    setTeam(pid); const info=dayInfo(d); const out=d.getUTCMonth()!==viewM; const wk=dow(d)>=5; const teamwk=!!info.weekend; const duty=isDuty(info);
+    const oc=[]; for (const t of others){ setTeam(t.id); oc.push(...otherChips(dayInfo(d),t)); } setTeam(pid);
+    grid.append(el('button',{class:'cell'+(out?' out':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
+      el('div',{class:'dn'}, el('b',{},d.getUTCDate()), dow(d)===0?el('span',{class:'wk'},'WK '+info.wk):''), ...chipsFor(info,true), ...oc));
+    if (!out){ const quiet=!duty&&!info.post&&!info.clinic&&!info.leave.length&&!info.pending.length&&!oc.length;
+      list.append(el('button',{class:'row'+(quiet?' quiet':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
+        el('div',{class:'dn'}, DN[dow(d)], el('b',{},d.getUTCDate())),
+        el('div',{class:'body'}, dow(d)===0?el('div',{class:'wkl'},S().name+' rota week '+info.wk+(info.wk===S().weekendWeek?' · team weekend':'')):null, ...(quiet?[el('span',{class:'note'},'—')]:chipsFor(info,false)), ...oc))); }
   }
-  if (openDay) openSheet(openDay, true);
+}
+function renderLegend(){ setTeam(primaryTeamId()); const L=$('#legend'); L.innerHTML=''; const add=(c,t)=>L.append(el('span',{style:'--c:'+c},t));
+  add('var(--warn)',S().name+' on-call day ('+DN[S().oncallWeekday]+' + week-'+S().weekendWeek+' weekend)'); add('var(--oncall)','On call'); add('var(--long)','Long weekend'); add('var(--short)','Short weekend'); add('var(--clinic)','Fracture clinic'); add('var(--leave)','Away'); add('var(--pend)','Swap pending'); if (teams().length>1) add('var(--mute)','Other teams (muted)'); }
+function renderTop(){
+  const b=$('#btnAccount'); b.innerHTML='';
+  if (!state.db) b.append('Preview'); else if (!acct()) b.append('Sign in'); else b.append(el('span',{}, el('b',{},actor()), isAdmin()?' · Admin':(isSec()?' · Secretary':''), myTeam()&&teamById(myTeam())?' · '+teamById(myTeam()).short:''));
+  const r=$('#btnRequests'); r.innerHTML='Notifications'; const n=myInbox().length+myNews().length; if (n) r.append(' ',el('span',{class:'badge'},n));
+  $('#btnSettings').hidden=!isAdmin();
+  const tp=$('#teamPick'); const ts=$('#teamSel'); tp.hidden=teams().length<2; ts.innerHTML=''; for (const t of teams()) ts.append(el('option',{value:t.id},t.name)); ts.value=primaryTeamId();
+  const ro=$('#roNote'); ro.hidden=true;
+  if (!state.db){ ro.textContent='Connecting to the shared rota…'; ro.hidden=false; }
+  else if (!state.canWrite){ ro.textContent='Could not reach the shared rota. Check your connection and reload.'; ro.hidden=false; }
+  else if (!acct()){ ro.textContent='Sign in (top right) to make changes.'; ro.hidden=false; }
+}
+function render(){ $('#teamName').textContent=G().appName||'On-Call Rota'; $('#teamSub').textContent=G().subtitle||''; renderTop(); renderLegend(); renderNow(); renderMonth(); setTeam(state.sheetTeam||primaryTeamId()); if (state.open) state.open(); }
+$('#teamSel').addEventListener('change',e=>{ state.viewTeam=e.target.value; try{localStorage.setItem('rota.viewTeam',state.viewTeam);}catch(err){} render(); });
+$('#prev').onclick=()=>{ viewM--; if(viewM<0){viewM=11;viewY--;} renderMonth(); };
+$('#next').onclick=()=>{ viewM++; if(viewM>11){viewM=0;viewY++;} renderMonth(); };
+const goToday=()=>{ const t=parse(todayKey()); viewY=t.getUTCFullYear(); viewM=t.getUTCMonth(); renderMonth(); const r=$('.row.today'); if(r) r.scrollIntoView({block:'center'}); };
+$('#todayBtn').onclick=goToday; $('#fabToday').onclick=goToday;
+
+/* ---------- toast, modal, password gate ---------- */
+let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
+function closeModal(){ $('#modal').innerHTML=''; state.open=null; state.sheetTeam=''; setTeam(primaryTeamId()); }
+function modal(title, build){
+  const bd=el('div',{class:'bd'});
+  const sheet=el('div',{class:'sheet',role:'dialog','aria-modal':'true'}, el('div',{class:'hd'}, el('h2',{},title), el('button',{class:'btn sm',onclick:closeModal},'Close')), bd);
+  $('#modal').innerHTML=''; $('#modal').append(el('div',{class:'scrim',onclick:closeModal}), sheet);
+  state.open=()=>{ bd.innerHTML=''; build(bd); }; state.open();
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $('#pin').innerHTML=''; closeModal(); } });
+function withPin(what, fn){
+  if (!acct()){ openAccount(); return; }
+  if (unlocked()) { fn(); return; }
+  const inp=el('input',{class:'inp',type:'password',placeholder:'Your rota password',autocomplete:'off',id:'pin-input'});
+  const msg=el('div',{class:'note'},'Enter your rota password to '+what+'. You will not be asked again in this session.');
+  const go=()=>{ if(!pwMatches(inp.value, acct().role)){ msg.textContent='That password is not right.'; inp.value=''; inp.focus(); return; } try{sessionStorage.setItem('rota.unlocked','1');}catch(e){} $('#pin').innerHTML=''; fn(); };
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+  $('#pin').innerHTML=''; $('#pin').append(el('div',{class:'pinbox'}, el('div',{class:'card'}, el('h3',{},'Confirm with password'), msg, inp, el('div',{class:'fr'}, el('button',{class:'btn primary',onclick:go},'Confirm'), el('button',{class:'btn',onclick:()=>$('#pin').innerHTML=''},'Cancel')))));
+  setTimeout(()=>inp.focus(),30);
 }
 
-function fmtRange(a, b){
-  return DOW[a.getDay()] + " " + a.getDate() + " " + MON[a.getMonth()] +
-         " – " + DOW[b.getDay()] + " " + b.getDate() + " " + MON[b.getMonth()] + " " + b.getFullYear();
+/* ---------- writes ---------- */
+async function write(fn, msg){
+  if (!state.db){ toast('Not connected to the shared rota, so nothing was saved.'); return false; }
+  if (!acct()){ toast('Sign in first.'); return false; }
+  try { await fn(); if (msg) { toast(msg); logEntry(msg); } return true; }
+  catch(e){ console.error(e); if (e && e.code==='permission-denied'){ toast('The database refused this change (rules). Tell the administrator.'); } else toast('Could not save: '+((e&&e.message)||'try again')); return false; }
 }
+async function logEntry(text){ try { const ref=state.db.doc('log/recent'); const snap=await ref.get(); const arr=(snap.exists&&Array.isArray(snap.data().entries))?snap.data().entries.slice():[]; arr.unshift({at:nowIso(),by:actor(),text}); await ref.set({entries:arr.slice(0,150)}); } catch(e){} }
+const consSel = (value, allowNone, filter) => { const s=el('select',{class:'inp'}); if (allowNone) s.append(el('option',{value:''},'—')); for (const c of cons()) if(!filter||filter(c)) s.append(el('option',{value:c.id},c.name)); s.value=value||''; return s; };
+const newId = p => (p||'r')+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 
-function closeSheet(){
-  openDay = null;
-  $("sheet").classList.remove("open");
-  $("sheetBg").classList.remove("open");
-}
-
-function openSheet(d, keep){
-  openDay = d;
-  const id = iso(d), rec = data[id] || {}, sheet = $("sheet");
-  sheet.innerHTML = "";
-
-  const h = document.createElement("h3");
-  h.textContent = DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()] + " " + d.getFullYear();
-  sheet.appendChild(h);
-
-  const when = document.createElement("div");
-  when.className = "when";
-  when.textContent = rec.updatedAt
-    ? "Last changed " + new Date(rec.updatedAt.seconds * 1000).toLocaleString("en-GB",
-        {weekday:"short", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}) +
-        (rec.updatedBy ? " by " + rec.updatedBy : "")
-    : "Not filled in yet";
-  sheet.appendChild(when);
-
-  slotsFor(d).forEach(s => {
-    const v = (rec[s.k] || "").trim();
-    const f = document.createElement("div");
-    f.className = "field";
-    const lab = document.createElement("label");
-    lab.textContent = s.l; lab.htmlFor = "f-" + s.k;
-    f.appendChild(lab);
-
-    if (unlocked){
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.id = "f-" + s.k; inp.value = v;
-      inp.placeholder = "Initials, e.g. JK";
-      inp.autocapitalize = "characters"; inp.autocomplete = "off"; inp.spellcheck = false;
-      inp.dataset.key = s.k;
-      f.appendChild(inp);
-      const sn = document.createElement("div");
-      sn.className = "hint";
-      const paint = () => { const n = surname(inp.value); sn.textContent = n ? n : (inp.value.trim() ? "no surname on the key yet" : ""); };
-      inp.addEventListener("input", paint); paint();
-      f.appendChild(sn);
-    } else {
-      const r = document.createElement("div");
-      r.className = "read" + (v ? "" : " none");
-      if (v){
-        const n = surname(v);
-        r.innerHTML = '<span class="ini"></span>' + (n ? ' <span class="surname"></span>' : "");
-        r.querySelector(".ini").textContent = v;
-        if (n) r.querySelector(".surname").textContent = "· " + n;
-      } else r.textContent = "Not filled in";
-      f.appendChild(r);
-    }
-    sheet.appendChild(f);
-  });
-
-  const row = document.createElement("div");
-  row.className = "row";
-  if (unlocked){
-    const save = document.createElement("button");
-    save.className = "btn-primary"; save.textContent = "Save";
-    save.onclick = () => saveDay(id, sheet, save);
-    const cancel = document.createElement("button");
-    cancel.className = "btn-ghost"; cancel.textContent = "Cancel";
-    cancel.onclick = closeSheet;
-    row.append(cancel, save);
-  } else {
-    const note = document.createElement("div");
-    note.className = "locked-note";
-    note.textContent = "Locked. Tap Unlock at the top to change the rota.";
-    sheet.appendChild(note);
-    const close = document.createElement("button");
-    close.className = "btn-ghost"; close.textContent = "Close";
-    close.onclick = closeSheet;
-    row.append(close);
-  }
-  sheet.appendChild(row);
-
-  if (!keep){ sheet.classList.add("open"); $("sheetBg").classList.add("open"); }
-}
-
-async function saveDay(id, sheet, btn){
-  if (!rota){ toast("Not connected yet — try again in a moment"); return; }
-  const payload = { updatedAt: serverTimestamp() };
-  if (me) payload.updatedBy = me;
-  sheet.querySelectorAll("input[data-key]").forEach(i => {
-    payload[i.dataset.key] = i.value.trim().toUpperCase();
-  });
-  btn.disabled = true; btn.textContent = "Saving…";
+async function transfer(duty, from, to, note){
+  if (holderOf(duty)!==from) throw new Error(nameOf(from)+' no longer holds '+duty.label+'.');
+  const prev=CT; setTeam(duty.team); const at=nowIso();
   try {
-    await setDoc(doc(rota, id), payload, { merge: true });
-    closeSheet(); toast("Saved");
-  } catch (e){
-    btn.disabled = false; btn.textContent = "Save";
-    toast("Could not save — check your connection");
-  }
+    if (duty.kind==='oncall') await state.db.doc('overrides/'+dk(duty.date)).set({team:duty.team,date:duty.date,oncall:to,note:note||('covers for '+nameOf(from)),by:actor(),at});
+    else { const w=weekendFor(parse(duty.date)); const nl=duty.role==='long'?to:w.long; const ns=duty.role==='short'?to:w.short; if (nl===ns) throw new Error('That would give one consultant both weekend roles.'); await state.db.doc('weekends/'+dk(duty.date)).set({team:duty.team,date:duty.date,long:nl,short:ns,note:note||(nameOf(to)+' covers '+duty.role+' for '+nameOf(from)),by:actor(),at}); }
+  } finally { CT=prev; }
 }
 
-function unlock(){
-  if (unlocked){
-    unlocked = false; sessionStorage.removeItem("rota-unlocked");
-    $("lockBtn").textContent = "Unlock"; $("lockBtn").className = "btn-ghost";
-    const kb = $("keyBtn"); if (kb) kb.remove();
-    closeSheet(); render(); toast("Locked");
-    return;
-  }
-  const sheet = $("sheet");
-  sheet.innerHTML = "";
-  const h = document.createElement("h3"); h.textContent = "Unlock to edit";
-  const w = document.createElement("div"); w.className = "when";
-  w.textContent = "Shared passphrase \u2014 ask whoever set the rota up.";
-
-  const f1 = document.createElement("div"); f1.className = "field";
-  const l1 = document.createElement("label"); l1.textContent = "Passphrase"; l1.htmlFor = "pw";
-  const pw = document.createElement("input");
-  pw.type = "password"; pw.id = "pw"; pw.autocomplete = "current-password";
-  f1.append(l1, pw);
-
-  const f2 = document.createElement("div"); f2.className = "field";
-  const l2 = document.createElement("label"); l2.textContent = "Your initials (optional)";
-  const who = document.createElement("input");
-  who.type = "text"; who.value = me; who.placeholder = "e.g. JK";
-  who.autocapitalize = "characters"; who.autocomplete = "off"; who.spellcheck = false;
-  const hint = document.createElement("div"); hint.className = "hint";
-  hint.textContent = "Shows who last changed a day.";
-  f2.append(l2, who, hint);
-
-  const err = document.createElement("div");
-  err.className = "hint"; err.style.color = "var(--warn)";
-
-  const row = document.createElement("div"); row.className = "row";
-  const cancel = document.createElement("button");
-  cancel.className = "btn-ghost"; cancel.textContent = "Cancel"; cancel.onclick = closeSheet;
-  const go = document.createElement("button");
-  go.className = "btn-primary"; go.textContent = "Unlock";
-  const submit = async () => {
-    go.disabled = true;
-    if (await sha256(pw.value) !== PASS_HASH){
-      go.disabled = false; err.textContent = "That passphrase isn't right."; pw.select(); return;
+/* ---------- day editor ---------- */
+function openDay(key, teamId){
+  const d=parse(key); state.sheetTeam=teamId||primaryTeamId(); setTeam(state.sheetTeam);
+  modal(fmtLong(d), bd=>{
+    setTeam(state.sheetTeam); const info=dayInfo(d); const me=myId(); const T=S();
+    const hdr=el('div',{class:'fr'}, el('span',{class:'note'},T.name+' · rota week '+info.wk+(info.wk===T.weekendWeek?' · team weekend week':'')+' · cycle '+(info.cycle+1)));
+    if (teams().length>1){ const sw=el('select',{class:'inp',id:'sheet-team'}); for (const t of teams()) sw.append(el('option',{value:t.id},t.name)); sw.value=T.id; sw.onchange=()=>openDay(key,sw.value); hdr.append(el('span',{class:'spacer'}), sw); }
+    bd.append(hdr);
+    const duties=dutiesOn(info);
+    if (info.oncall){
+      const sec=el('div',{class:'sec'}, el('h3',{},'Weekday on call', el('span',{class:'st'},'rota: '+nameOf(info.oncall.base))));
+      sec.append(el('div',{class:'big'},nameOf(info.oncall.id)+(info.oncall.override?' (swap)':'')));
+      if (info.oncall.override&&info.oncall.override.note) sec.append(el('div',{class:'note'},'Note: '+info.oncall.override.note));
+      sec.append(dutyActions(duties.find(x=>x.kind==='oncall'), info));
+      if (canEditDuty()) sec.append(adminOncall(info,key));
+      bd.append(sec);
     }
-    unlocked = true; sessionStorage.setItem("rota-unlocked", "1");
-    me = who.value.trim().toUpperCase();
-    if (me) localStorage.setItem("rota-me", me); else localStorage.removeItem("rota-me");
-    $("lockBtn").textContent = "Lock"; $("lockBtn").className = "btn-primary";
-    showKeyButton(); closeSheet(); render(); toast("Unlocked \u2014 tap a day to edit");
-  };
-  go.onclick = submit;
-  pw.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
-  row.append(cancel, go);
-
-  sheet.append(h, w, f1, f2, err, row);
-  sheet.classList.add("open"); $("sheetBg").classList.add("open");
-  setTimeout(() => pw.focus(), 120);
-}
-
-function showKeyButton(){
-  if ($("keyBtn")) return;
-  const b = document.createElement("button");
-  b.id = "keyBtn"; b.className = "btn-ghost"; b.textContent = "Name key";
-  b.style.marginLeft = "8px";
-  b.onclick = editNames;
-  $("lockBtn").after(b);
-}
-
-function editNames(){
-  const sheet = $("sheet");
-  sheet.innerHTML = "";
-  const h = document.createElement("h3"); h.textContent = "Name key";
-  const w = document.createElement("div"); w.className = "when";
-  w.textContent = "One per line: initials = surname";
-  const ta = document.createElement("textarea");
-  ta.value = Object.entries(names).map(([k,v]) => k + " = " + v).join("\n");
-  ta.placeholder = "JK = Kozdryk\nMS = Seah";
-  const hint = document.createElement("div");
-  hint.className = "hint";
-  hint.textContent = "Surnames show when someone taps a day.";
-  const row = document.createElement("div"); row.className = "row";
-  const cancel = document.createElement("button");
-  cancel.className = "btn-ghost"; cancel.textContent = "Cancel"; cancel.onclick = closeSheet;
-  const save = document.createElement("button");
-  save.className = "btn-primary"; save.textContent = "Save";
-  save.onclick = async () => {
-    if (!rota){ toast("Not connected yet — try again in a moment"); return; }
-    save.disabled = true; save.textContent = "Saving…";
-    try {
-      await setDoc(doc(rota, "people"), { list: ta.value, updatedAt: serverTimestamp() }, { merge: true });
-      closeSheet(); toast("Name key saved");
-    } catch(e){ save.disabled = false; save.textContent = "Save"; toast("Could not save"); }
-  };
-  row.append(cancel, save);
-  sheet.append(h, w, ta, hint, row);
-  sheet.classList.add("open"); $("sheetBg").classList.add("open");
-}
-
-$("lockBtn").onclick = unlock;
-$("sheetBg").onclick = closeSheet;
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
-
-if (unlocked){ $("lockBtn").textContent = "Lock"; $("lockBtn").className = "btn-primary"; showKeyButton(); }
-render();
-
-try {
-  const [appMod, fsMod] = await Promise.all([
-    import("https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"),
-    import("https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js")
-  ]);
-  ({ doc, setDoc, onSnapshot, serverTimestamp } = fsMod);
-  db = fsMod.getFirestore(appMod.initializeApp(firebaseConfig));
-  rota = fsMod.collection(db, "rota");
-
-  onSnapshot(rota, snap => {
-    const next = {};
-    snap.forEach(d => {
-      if (d.id === "people") names = parseNames(d.data().list);
-      else next[d.id] = d.data();
-    });
-    data = next;
-    $("dot").className = "dot live";
-    $("statusText").textContent = "Live — changes appear for everyone straight away";
-    render();
-  }, err => {
-    $("dot").className = "dot bad";
-    $("statusText").textContent = "Lost the connection — reload to try again";
+    if (info.weekend){
+      const w=info.weekend;
+      const sec=el('div',{class:'sec'}, el('h3',{},'Team weekend '+fmtShort(w.fri)+' – '+fmtShort(addDays(w.fri,2)), el('span',{class:'st'},'rota: '+shortOf(w.baseLong)+' long / '+shortOf(w.baseShort)+' short')));
+      sec.append(el('div',{class:'big'}, el('span',{class:'chip long'},'Long'),' ',nameOf(w.long),w.override?' (swap)':''), el('div',{class:'note'},'Fri: on call + trauma list · Sat: ward round, then home · Sun: on call + trauma list · Mon: post-take ward round + virtual fracture clinic'));
+      sec.append(dutyActions(duties.find(x=>x.kind==='weekend'&&x.role==='long'), info));
+      sec.append(el('div',{class:'big'}, el('span',{class:'chip short'},'Short'),' ',nameOf(w.short),w.override?' (swap)':''), el('div',{class:'note'},'Sat: on call + trauma list · Sun: ward round'));
+      sec.append(dutyActions(duties.find(x=>x.kind==='weekend'&&x.role==='short'), info));
+      if (w.override&&w.override.note) sec.append(el('div',{class:'note'},'Note: '+w.override.note));
+      if (canEditDuty()) sec.append(adminWeekend(w));
+      bd.append(sec);
+    }
+    if (info.post) bd.append(el('div',{class:'sec'}, el('h3',{},'Post-take Monday'), el('div',{class:'big'},nameOf(info.post.long)), el('div',{class:'note'},'Post-take ward round and virtual fracture clinic after the long weekend. It follows whoever does the long weekend.')));
+    if (info.pending.length){ const sec=el('div',{class:'sec'}, el('h3',{},'Pending swaps')); for (const r of info.pending) sec.append(requestCard(r)); bd.append(sec); }
+    if (info.clinic){
+      const c=info.clinic; const n=c.present.length;
+      const sec=el('div',{class:'sec'}, el('h3',{},'Fracture clinic', el('span',{class:'st cnt'+(n===0?' bad':'')},n+' consultant'+(n===1?'':'s')+(n===0?' — needs at least 1':''))));
+      const setPres=(id,val)=>withPin('change clinic cover',()=>{ setTeam(T.id); const rec=state.clinic[dk(key)]||{}; const pres={...(rec.present||{})}; if(val===null) delete pres[id]; else pres[id]=val; write(()=>state.db.doc('clinic/'+dk(key)).set({...rec,team:T.id,date:key,present:pres,by:actor(),at:nowIso()}), fmtShort(d)+' clinic: '+nameOf(id)+(val===true?' in clinic':val===false?' not in clinic':' back to the rule')); });
+      for (const cc of cons()){
+        const on=c.present.includes(cc.id); const why=whoIsBusy(info,cc.id); const explicit=(c.rec.present||{})[cc.id];
+        const row=el('div',{class:'tog'}, el('div',{}, el('div',{class:'nm'},cc.name+(cc.id===me?' (you)':'')), el('div',{class:'why'},(why?why:(cc.clinic?'usually in clinic':'not usually in clinic'))+(explicit!==undefined?' · set by hand':''))));
+        if (canClinic(cc.id)){ const sw=el('div',{class:'sw3'}, el('button',{class:on?'on':'',onclick:()=>setPres(cc.id,true)},'In clinic'), el('button',{class:!on?'off':'',onclick:()=>setPres(cc.id,false)},'Not in')); if (explicit!==undefined) sw.append(el('button',{title:'Clear the manual setting and go back to the automatic rule',onclick:()=>setPres(cc.id,null)},'Reset')); row.append(sw); }
+        else row.append(el('span',{class:'chip '+(on?'clinic':'leave')},on?'In clinic':'Not in'));
+        sec.append(row);
+      }
+      sec.append(el('div',{class:'note'},'Consultants mark their own attendance. Automatic rule: in clinic unless on call, away, or not a clinic attender; "set by hand" means someone overrode it, and Reset goes back to the rule.'));
+      const reg=el('input',{class:'inp grow',placeholder:'Registrar in clinic',value:c.registrar,id:'reg-'+key,disabled:!canNotes()});
+      const note=el('input',{class:'inp grow',placeholder:'Clinic note',value:c.note,id:'cn-'+key,disabled:!canNotes()});
+      const fr=el('div',{class:'fr'}, reg, note); if (canNotes()) fr.append(el('button',{class:'btn sm',onclick:()=>withPin('update the clinic note',()=>{ setTeam(T.id); const rec=state.clinic[dk(key)]||{}; write(()=>state.db.doc('clinic/'+dk(key)).set({...rec,team:T.id,date:key,registrar:reg.value.trim(),note:note.value.trim(),by:actor(),at:nowIso()}), fmtShort(d)+' clinic note updated'); })},'Save note'));
+      sec.append(fr); bd.append(sec);
+    }
+    const sec=el('div',{class:'sec'}, el('h3',{},'Away / leave'));
+    if (info.leave.length) for (const l of info.leave) sec.append(el('div',{class:'tog'}, el('div',{}, el('div',{class:'nm'},nameOf(l.who)+' · '+(l.type||'away')), el('div',{class:'why'},l.from+' → '+l.to+(l.note?' · '+l.note:'')+(l.by?' · added by '+l.by:''))), canLeave(l.who)&&isDuty(info)?el('button',{class:'btn sm danger',onclick:()=>removeLeave(l)},'Remove'):null));
+    else sec.append(el('div',{class:'note'},'Nobody is recorded as away.'));
+    if (isDuty(info)) { if (canWriteAny()) sec.append(leaveForm(key)); }
+    else sec.append(el('div',{class:'note'},'Leave and swaps are recorded on '+T.name+'\'s on-call days (shown in red): '+DNL[T.oncallWeekday]+'s and week-'+T.weekendWeek+' weekends. Tap one of those days.'));
+    bd.append(sec);
+    // other teams, read-only summary
+    const others=teams().filter(t=>t.id!==T.id); if (others.length){ const os=el('div',{class:'sec'}, el('h3',{},'Other teams on this day')); let any=false; for (const t of others){ setTeam(t.id); const oi=dayInfo(d); const ch=otherChips(oi,t); if (ch.length){ any=true; os.append(el('div',{class:'fr'}, el('b',{},t.name), ...chipsFor(oi,false).filter(x=>!x.classList.contains('leave')&&!x.classList.contains('clinic')), el('button',{class:'btn sm',onclick:()=>openDay(key,t.id)},'Open'))); } } setTeam(T.id); if (!any) os.append(el('div',{class:'note'},'No other team is on call today.')); bd.append(os); }
+    if (state.db && !acct()) bd.append(el('div',{class:'fr'}, el('button',{class:'btn primary sm',onclick:openAccount},'Sign in to make changes')));
   });
-} catch (e) {
-  $("dot").className = "dot bad";
-  $("statusText").textContent = "Can't reach the rota data — check your connection and reload";
 }
+function dutyActions(duty, info){
+  const box=el('div',{class:'fr'}); if (!duty || !canWriteAny() || isSec()) return box;
+  const me=myId(); if (!me || teamOf(me)!==duty.team) return box;
+  const pend=Object.values(state.requests).some(r=>r.status==='pending'&&r.type==='swap'&&r.team===duty.team&&r.give.kind===duty.kind&&r.give.date===duty.date&&(r.give.role||'')===(duty.role||''));
+  if (pend){ box.append(el('span',{class:'chip pend'},'Swap request pending')); return box; }
+  if (duty.holder===me) box.append(el('button',{class:'btn sm primary',onclick:()=>swapForm(duty,'ask')},'Ask someone to cover'));
+  else box.append(el('button',{class:'btn sm',onclick:()=>swapForm(duty,'offer')},'Offer to cover'));
+  return box;
+}
+function swapForm(duty, mode){
+  const me=myId(); state.sheetTeam=duty.team; setTeam(duty.team);
+  modal(mode==='ask'?'Ask someone to cover':'Offer to cover', bd=>{
+    setTeam(duty.team);
+    const who = mode==='ask' ? consSel('',true,c=>c.id!==me) : null; if (who) who.id='sw-who';
+    const retSel=el('select',{class:'inp grow',id:'sw-ret'}, el('option',{value:''},'Nothing in return (one-way cover)'));
+    const fillReturn=()=>{ while(retSel.options.length>1) retSel.remove(1); const list = mode==='ask' ? (who.value?dutiesOf(who.value, todayKey(), 200):[]) : dutiesOf(me, todayKey(), 200); for (const du of list) retSel.append(el('option',{value:JSON.stringify(du)},du.label)); };
+    if (who) who.onchange=fillReturn; fillReturn();
+    const note=el('input',{class:'inp grow',placeholder:'message (optional)',id:'sw-note'});
+    bd.append(el('div',{class:'sec hl'}, el('h3',{},'Duty'), el('div',{class:'big'},duty.label+' · currently '+nameOf(duty.holder)),
+      mode==='ask' ? el('div',{class:'fr'}, el('label',{for:'sw-who'},'Ask'), who) : el('div',{class:'note'},'You offer to take this duty from '+nameOf(duty.holder)+'. They approve or decline.'),
+      el('div',{class:'fr'}, el('label',{for:'sw-ret'},mode==='ask'?'In return I take their':'In return they take my'), retSel),
+      el('div',{class:'fr'}, note),
+      el('div',{class:'note'},'They see this as a notification the next time they open the rota. Nothing changes until they approve it with their password.'),
+      el('div',{class:'fr'}, el('button',{class:'btn primary',onclick:()=>{
+        const toId = mode==='ask' ? who.value : duty.holder; if (!toId){ toast('Choose who to ask.'); return; }
+        const take = retSel.value ? JSON.parse(retSel.value) : null;
+        const req = mode==='ask'
+          ? { type:'swap', team:duty.team, from:me, to:toId, give:duty, take, note:note.value.trim(), status:'pending', createdAt:nowIso(), createdBy:actor() }
+          : { type:'swap', team:duty.team, from:duty.holder, to:me, give:duty, take, note:note.value.trim(), status:'pending', createdAt:nowIso(), createdBy:actor(), offered:true };
+        withPin('send this request',()=>{ const id=newId('swap'); write(()=>state.db.doc('requests/'+id).set(req), 'Swap requested: '+nameOf(req.from)+' → '+nameOf(req.to)+' for '+duty.label).then(ok=>{ if(ok) closeModal(); }); });
+      }},'Send request'), el('button',{class:'btn',onclick:closeModal},'Cancel'))));
+  });
+}
+function adminOncall(info,key){
+  const T=S(); const sel=consSel(info.oncall.id,false); sel.id='oc-sel-'+key; const note=el('input',{class:'inp grow',placeholder:'reason (optional)',value:(info.oncall.override||{}).note||'',id:'oc-note-'+key});
+  const d=parse(key); const path='overrides/'+dk(key);
+  const clear=()=>withPin('change the rota',()=>write(()=>state.db.doc(path).delete(), T.short+' '+fmtShort(d)+': swap removed, back to '+nameOf(info.oncall.base)));
+  const fr=el('div',{class:'fr'}, el('label',{for:sel.id},'Admin: set to'), sel, note, el('button',{class:'btn primary sm',onclick:()=>{ if(sel.value===info.oncall.base&&!note.value){ clear(); return; } withPin('change the rota',()=>write(()=>state.db.doc(path).set({team:T.id,date:key,oncall:sel.value,note:note.value,by:actor(),at:nowIso()}), T.short+' '+fmtShort(d)+': on call set to '+nameOf(sel.value))); }},'Save'));
+  if (info.oncall.override) fr.append(el('button',{class:'btn sm',onclick:clear},'Undo swap'));
+  return fr;
+}
+function adminWeekend(w){
+  const T=S(); const sl=consSel(w.long,false), ss=consSel(w.short,false); sl.id='we-long-'+w.friKey; ss.id='we-short-'+w.friKey;
+  const note=el('input',{class:'inp grow',placeholder:'reason (optional)',value:(w.override||{}).note||'',id:'we-note-'+w.friKey}); const path='weekends/'+dk(w.friKey);
+  const clear=()=>withPin('change the rota',()=>write(()=>state.db.doc(path).delete(), T.short+' weekend '+fmtShort(w.fri)+': swap removed'));
+  const fr=el('div',{class:'fr'}, el('label',{for:sl.id},'Admin: long'), sl, el('label',{for:ss.id},'short'), ss, note, el('button',{class:'btn primary sm',onclick:()=>{ if(sl.value===ss.value){ toast('Long and short must be two different consultants.'); return; } if(sl.value===w.baseLong&&ss.value===w.baseShort&&!note.value){ clear(); return; } withPin('change the rota',()=>write(()=>state.db.doc(path).set({team:T.id,date:w.friKey,long:sl.value,short:ss.value,note:note.value,by:actor(),at:nowIso()}), T.short+' weekend '+fmtShort(w.fri)+': long '+nameOf(sl.value)+', short '+nameOf(ss.value))); }},'Save'));
+  if (w.override) fr.append(el('button',{class:'btn sm',onclick:clear},'Undo swap'));
+  return fr;
+}
+
+/* ---------- leave ---------- */
+function leaveForm(fromKey){
+  const pre = (isAdmin()||isSec()) ? '' : myId();
+  const who=consSel(pre,true,c=>canLeave(c.id)); who.id='lv-who-'+fromKey; if (pre) who.disabled=true;
+  const from=el('input',{class:'inp',type:'date',value:fromKey,id:'lv-from-'+fromKey});
+  const to=el('input',{class:'inp',type:'date',value:fromKey,id:'lv-to-'+fromKey});
+  const type=el('select',{class:'inp',id:'lv-type-'+fromKey}, el('option',{},'Annual leave'), el('option',{},'Study leave'), el('option',{},'Sick'), el('option',{},'Other'));
+  const note=el('input',{class:'inp grow',placeholder:'note (optional)',id:'lv-note-'+fromKey});
+  const add=el('button',{class:'btn primary sm',onclick:()=>{ if(!who.value||!from.value||!to.value){ toast('Choose who and the dates.'); return; } if(to.value<from.value){ toast('End date is before start date.'); return; }
+    withPin('record leave',()=>{ const id=from.value+'-'+who.value+'-'+Math.random().toString(36).slice(2,6); const rec={who:who.value,team:teamOf(who.value),from:from.value,to:to.value,type:type.value,note:note.value.trim(),by:actor(),at:nowIso()};
+      write(()=>state.db.doc('leave/'+id).set(rec), 'Away: '+nameOf(who.value)+' '+from.value+' → '+to.value+' ('+type.value+')').then(ok=>{ if(!ok) return; const clashes=dutiesOf(who.value, from.value, Math.round((parse(to.value)-parse(from.value))/DAY)+1).map(x=>x.label); if (clashes.length) toast('Recorded. Duties still needing a swap: '+clashes.join(', ')); }); }); }},'Add');
+  return el('div',{class:'fr'}, el('label',{for:who.id},'Add'), who, el('label',{for:from.id},'from'), from, el('label',{for:to.id},'to'), to, type, note, add);
+}
+const removeLeave = l => withPin('remove leave',()=>write(()=>state.db.doc('leave/'+l.id).delete(),'Leave removed: '+nameOf(l.who)+' '+l.from+'–'+l.to));
+$('#btnLeave').onclick=()=>modal('Leave and absence', bd=>{
+  const items=Object.values(state.leave).sort((a,b)=>a.from<b.from?-1:1); const tk=todayKey();
+  bd.append(el('div',{class:'note'},'To record leave, tap one of the red on-call days in the calendar and add it there. While away the consultant drops out of fracture clinic automatically; on-call duties stay on the rota until they are swapped.'));
+  const upcoming=items.filter(l=>l.to>=tk), past=items.filter(l=>l.to<tk);
+  const tbl=rows=>{ const t=el('table',{}, el('tr',{}, el('th',{},'Who'), el('th',{},'Team'), el('th',{},'From'), el('th',{},'To'), el('th',{},'Type'), el('th',{},''))); for (const l of rows) t.append(el('tr',{}, el('td',{},nameOf(l.who)), el('td',{},(teamById(teamOf(l.who))||{}).short||''), el('td',{},l.from), el('td',{},l.to), el('td',{},(l.type||'')+(l.note?' · '+l.note:'')), el('td',{}, canLeave(l.who)?el('button',{class:'btn sm danger',onclick:()=>removeLeave(l)},'Remove'):''))); return el('div',{class:'tw'},t); };
+  bd.append(el('div',{class:'sec'}, el('h3',{},'Upcoming'), upcoming.length?tbl(upcoming):el('div',{class:'note'},'Nothing recorded yet.')));
+  if (past.length) bd.append(el('div',{class:'sec'}, el('h3',{},'Past'), tbl(past.slice(-20).reverse())));
+  const conflicts=[]; for (const l of upcoming){ for (const du of dutiesOf(l.who,l.from,Math.round((parse(l.to)-parse(l.from))/DAY)+1)) conflicts.push(du.label+' · '+nameOf(l.who)); }
+  if (conflicts.length) bd.append(el('div',{class:'sec'}, el('h3',{},'Needs a swap'), ...conflicts.map(c=>el('div',{class:'chip warn'},c))));
+});
+
+/* ---------- requests & notifications ---------- */
+function myInbox(){ if (!acct()) return []; return Object.values(state.requests).filter(r=>r.status==='pending'&&((isAdmin()&&r.to==='admin')||(r.to===myId()&&myId()))); }
+const seenAt = () => (acct()&&acct().seenAt)||state.seenLocal||'';
+function myNews(){ if (!acct()) return []; const me=myId(); return Object.values(state.requests).filter(r=>r.status!=='pending'&&r.decidedAt&&r.decidedAt>seenAt()&&(r.from===me||(r.offered&&r.to===me)||(isAdmin()&&r.to==='admin'&&r.decidedBy!==actor()))); }
+function markSeen(){ const now=nowIso(); state.seenLocal=now; try{localStorage.setItem('rota.seen',now);}catch(e){} if (acct()&&state.db&&state.login){ state.acct={...acct(),seenAt:now}; state.db.doc('accounts/'+state.login).set(state.acct).catch(()=>{}); } }
+function requestCard(r){
+  const card=el('div',{class:'req '+r.status}); const tn=(teamById(r.team)||{}).short||'';
+  let title, meta;
+  if (r.type==='swap'){ title=(tn?tn+' · ':'')+(r.offered?nameOf(r.to)+' offers to cover '+nameOf(r.from)+'\'s ':nameOf(r.from)+' asks '+nameOf(r.to)+' to cover ')+r.give.label; meta=(r.take?'In return: '+nameOf(r.to)+' hands '+r.take.label+' to '+nameOf(r.from):'Nothing in return')+(r.note?' · "'+r.note+'"':''); }
+  else if (r.type==='slot'){ title=(tn?tn+' · ':'')+nameOf(r.from)+' asks to move to on-call week '+r.slot+' (from week '+((byId(r.from)||{}).slot||'—')+')'; meta='Needs administrator approval'+(r.note?' · "'+r.note+'"':''); }
+  else { title=r.title||'Request'; meta=r.note||''; }
+  card.append(el('div',{class:'t'},title), el('div',{class:'m'},meta), el('div',{class:'m'},'Sent '+new Date(r.createdAt).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'})+(r.status!=='pending'?' · '+r.status+(r.decidedBy?' by '+r.decidedBy:''):'')));
+  if (r.status==='pending'){
+    const fr=el('div',{class:'fr'});
+    if (canDecide(r)) fr.append(el('button',{class:'btn primary sm',onclick:()=>decide(r,'approved')},'Approve'), el('button',{class:'btn sm danger',onclick:()=>decide(r,'declined')},'Decline'));
+    if (canWriteAny() && (r.from===myId()||(r.offered&&r.to===myId())||isAdmin())) fr.append(el('button',{class:'btn sm',onclick:()=>withPin('withdraw this request',()=>write(()=>state.db.doc('requests/'+r.id).set({...r,status:'withdrawn',decidedAt:nowIso(),decidedBy:actor()}),'Request withdrawn'))},'Withdraw'));
+    if (fr.children.length) card.append(fr); else card.append(el('div',{class:'m'},'Waiting for '+nameOf(r.to)));
+  }
+  return card;
+}
+function decide(r, status){
+  withPin(status==='approved'?'approve this request':'decline this request', async()=>{
+    await write(async()=>{
+      if (status==='approved'){
+        if (r.type==='swap'){ await transfer(r.give, r.from, r.to); if (r.take) await transfer(r.take, r.to, r.from); }
+        else if (r.type==='slot'){ const t=structuredClone(teamById(r.team)||teamById(teamOf(r.from))); if(!t) throw new Error('Team not found.'); const other=t.consultants.find(c=>c.slot===r.slot&&c.id!==r.from); const mine=t.consultants.find(c=>c.id===r.from); if(!mine) throw new Error('Consultant not found.'); const old=mine.slot; mine.slot=r.slot; if (other) other.slot=old; await state.db.doc('teams/'+t.id).set(t); }
+      }
+      await state.db.doc('requests/'+r.id).set({...r,status,decidedAt:nowIso(),decidedBy:actor()});
+    }, 'Request '+status+': '+(r.type==='swap'?r.give.label:'week change for '+nameOf(r.from)));
+  });
+}
+function openRequests(){ modal('Notifications', bd=>{
+  const all=Object.values(state.requests).sort((a,b)=>a.createdAt<b.createdAt?1:-1);
+  const inbox=myInbox(); const news=myNews(); const mine=all.filter(r=>r.from===myId()||(r.offered&&r.to===myId()));
+  if (!acct()) { bd.append(el('div',{class:'note'},'Sign in to see your notifications.')); return; }
+  bd.append(el('div',{class:'sec hl'}, el('h3',{},'For you to decide', el('span',{class:'st'},inbox.length)), ...(inbox.length?inbox.map(requestCard):[el('div',{class:'note'},'Nothing waiting for you.')])));
+  if (news.length) bd.append(el('div',{class:'sec'}, el('h3',{},'New decisions'), ...news.map(requestCard), el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>{ markSeen(); render(); }},'Mark as read'))));
+  if (canWriteAny() && byId(myId())) bd.append(el('div',{class:'sec'}, el('h3',{},'My regular on-call week'), el('div',{class:'note'},'You are on '+(teamById(myTeam())||{}).name+' week '+((byId(myId())||{}).slot||'—')+'. A permanent change needs the administrator\'s approval; one-off swaps are made from the day itself.'), slotRequestForm()));
+  const older=mine.filter(r=>!news.includes(r)); if (older.length) bd.append(el('div',{class:'sec'}, el('h3',{},'Your requests'), ...older.slice(0,20).map(requestCard)));
+  if (isAdmin()) bd.append(el('div',{class:'sec'}, el('h3',{},'All requests (admin)'), ...(all.length?all.slice(0,40).map(requestCard):[el('div',{class:'note'},'None yet.')])));
+}); }
+$('#btnRequests').onclick=openRequests;
+function slotRequestForm(){
+  if (isAdmin()) return el('div',{class:'note'},'As administrator you change weeks directly in Settings.');
+  const prev=CT; setTeam(myTeam());
+  const sel=el('select',{class:'inp',id:'slot-sel'}, ...[1,2,3,4].map(n=>el('option',{value:String(n)},'Week '+n+((bySlot(n)&&bySlot(n).id!==myId())?' (currently '+bySlot(n).name+')':''))));
+  CT=prev;
+  const note=el('input',{class:'inp grow',placeholder:'reason',id:'slot-note'});
+  return el('div',{class:'fr'}, el('label',{for:'slot-sel'},'Move me to'), sel, note, el('button',{class:'btn sm primary',onclick:()=>{ const n=Number(sel.value); if (n===(byId(myId())||{}).slot){ toast('That is already your week.'); return; }
+    withPin('send this request',()=>{ const id=newId('slot'); const req={type:'slot',team:myTeam(),from:myId(),to:'admin',slot:n,note:note.value.trim(),status:'pending',createdAt:nowIso(),createdBy:actor()}; write(()=>state.db.doc('requests/'+id).set(req),'Week change requested by '+nameOf(myId())); }); }},'Request'));
+}
+
+/* ---------- sign-in / accounts ---------- */
+function setLogin(key){ state.login=key||''; try{ if(key) localStorage.setItem('rota.login',key); else localStorage.removeItem('rota.login'); }catch(e){} syncAcct(); }
+function syncAcct(){ state.acct = state.login ? (state.accounts[state.login]||null) : null; }
+function openAccount(){
+  if (!state.db){ toast('Still connecting to the shared rota. Try again in a moment.'); return; }
+  modal(acct()?'Your account':'Sign in', bd=>{
+    const a=acct();
+    if (a){
+      const tn=(teamById(a.team)||{}).name;
+      bd.append(el('div',{class:'sec'}, el('h3',{},'Signed in as'), el('div',{class:'big'},actor()+(isAdmin()?' · Administrator':isSec()?' · Secretary':'')+(tn?' · '+tn:'')), el('div',{class:'note'},a.email+' · account created '+new Date(a.claimedAt).toLocaleDateString('en-GB')), el('div',{class:'note'},isAdmin()?'You approve week changes, can edit any duty directly across all teams, and manage accounts, teams and settings. Sign out and back in to switch between your admin and consultant accounts.':isSec()?'You can record leave for anyone in your team and update clinic notes and the registrar.':'You can mark your own clinic attendance, record your own leave, and request or approve swaps that involve you. Other teams\' on-call appears in the calendar for information only.'),
+        el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>{ setLogin(''); try{sessionStorage.removeItem('rota.unlocked');}catch(e){} closeModal(); render(); toast('Signed out.'); }},'Sign out'))));
+    } else {
+      const email=el('input',{class:'inp grow',type:'email',placeholder:'you@'+(G().emailDomain||'nhs.net'),id:'li-email',autocomplete:'email'});
+      const pin=el('input',{class:'inp',type:'password',placeholder:'Password',id:'li-pin',autocomplete:'current-password'});
+      const msg=el('div',{class:'note'},'Your email address is your username. Use the password you were given by the administrator.');
+      const step2=el('div',{class:'sec',hidden:true});
+      const go=()=>{
+        const em=emailKey(email.value); const pw=pin.value;
+        if (!em.includes('@')){ msg.textContent='Enter your email address.'; return; }
+        const existing=state.accounts[em];
+        if (!existing && G().emailDomain && !em.endsWith('@'+G().emailDomain.toLowerCase()) && !pwMatches(pw,'admin')){ msg.textContent='Please use your '+G().emailDomain+' address.'; return; }
+        if (existing){ if (!pwMatches(pw, existing.role)){ msg.textContent='That password is not right for this account.'; return; } setLogin(em); try{sessionStorage.setItem('rota.unlocked','1');}catch(e){} closeModal(); render(); toast('Welcome back, '+actor()+'.'); return; }
+        const role = pwMatches(pw,'admin') ? 'admin' : (pwMatches(pw,'consultant') ? 'consultant' : null);
+        if (!role){ msg.textContent='That password is not right.'; return; }
+        step2.hidden=false; step2.innerHTML='';
+        const claimed=new Set(Object.values(state.accounts).map(x=>x.consultant).filter(Boolean));
+        // UHCW emails are firstname.surname@… : use the surname to find the person
+        const local=em.split('@')[0]; const parts=local.split(/[._-]+/).filter(Boolean); const surname=parts.length>1?parts[parts.length-1]:parts[0]||''; const Surname=surname?surname.charAt(0).toUpperCase()+surname.slice(1):'';
+        const norm=x=>(x||'').toLowerCase().replace(/[^a-z]/g,''); const match=allCons().find(c=>!claimed.has(c.id)&&norm(c.name.split(' ').pop())===norm(surname));
+        const titleSel=el('select',{class:'inp',id:'li-title'}, ...['Mr','Miss','Mrs','Ms','Dr'].map(t=>el('option',{},t)));
+        const teamSel=el('select',{class:'inp grow',id:'li-team'}, el('option',{value:''},'— choose your team —')); for (const t of teams()) teamSel.append(el('option',{value:t.id},t.name)); if (role==='admin') teamSel.append(el('option',{value:'none'},'No team (administrator only)'));
+        const sel=el('select',{class:'inp grow',id:'li-who',disabled:true}, el('option',{value:''},'— choose your name —'));
+        const nm=el('input',{class:'inp grow',placeholder:'Your name',id:'li-name',hidden:true,value:Surname}); const nmRow=el('div',{class:'fr',hidden:true}, titleSel, nm);
+        const m2=el('div',{class:'note'},'First time here: this creates your account as '+(role==='admin'?'an administrator':'a team member')+'. Choose your team; your name is taken from the surname in your email.');
+        const fillNames=()=>{ sel.innerHTML=''; sel.append(el('option',{value:''},'— choose your name —')); const t=teamById(teamSel.value); sel.disabled=!t&&teamSel.value!=='none';
+          if (t){ const inTeam=t.consultants.filter(c=>norm(c.name.split(' ').pop())===norm(surname)); const free=inTeam.filter(c=>!claimed.has(c.id));
+            if (role==='admin'){ for (const c of t.consultants) if (!claimed.has(c.id)) sel.append(el('option',{value:c.id},c.name)); sel.append(el('option',{value:'sec'},'Administrator in '+t.name+' (no consultant name)')); if (free[0]) sel.value=free[0].id; m2.textContent='Administrator account. You may take a consultant name or none.'; }
+            else if (free.length){ sel.append(el('option',{value:free[0].id},free[0].name)); sel.value=free[0].id; sel.disabled=true; m2.textContent='Your email ('+local+') matches '+free[0].name+' in '+t.name+'. Names are allocated from the surname in your email, so this cannot be changed.'; }
+            else if (inTeam.length){ sel.append(el('option',{value:'sec'},'Secretary for '+t.name)); m2.textContent=inTeam[0].name+' has already been claimed by another email address. Ask the administrator to release it, or continue as a secretary.'; }
+            else { sel.append(el('option',{value:'sec'},'Secretary for '+t.name)); sel.value='sec'; m2.textContent='No consultant named '+(Surname||local)+' in '+t.name+'. Consultants are added by the administrator; you can continue as a secretary for this team.'; } }
+          if (teamSel.value==='none'){ sel.append(el('option',{value:'adminonly'},'Administrator (no consultant name)')); sel.value='adminonly'; }
+          nmRow.hidden=!(sel.value==='sec'||sel.value==='adminonly'); };
+        teamSel.onchange=fillNames; sel.onchange=()=>{ nmRow.hidden=!(sel.value==='sec'||sel.value==='adminonly'); };
+        step2.append(el('h3',{},'Who are you?'), el('div',{class:'fr'}, teamSel), el('div',{class:'fr'}, sel), nmRow, m2, el('div',{class:'fr'}, el('button',{class:'btn primary',onclick:async()=>{
+          const v=sel.value; const tid=teamSel.value==='none'?'':teamSel.value; if (!tid && v!=='adminonly'){ m2.textContent='Choose your team.'; return; } if (!v){ m2.textContent='Choose your name.'; return; }
+          if (v!=='sec' && v!=='adminonly' && Object.values(state.accounts).some(x=>x.consultant===v)){ m2.textContent='That name has already been taken. Ask the administrator to release it.'; return; }
+          if (v!=='sec' && v!=='adminonly' && role!=='admin' && norm((byId(v)||{name:''}).name.split(' ').pop())!==norm(surname)){ m2.textContent='That name does not match the surname in your email.'; return; }
+          const isCons = v!=='sec' && v!=='adminonly';
+          const rec={ email:em, team:tid, consultant:isCons?v:'', name:isCons?nameOf(v):((nm.value.trim()?titleSel.value+' '+nm.value.trim():'')||(v==='sec'?'Secretary':'Administrator')), role:(!isCons&&v==='sec'&&role!=='admin')?'secretary':role, claimedAt:nowIso(), seenAt:nowIso() };
+          try { await state.db.doc('accounts/'+em).set(rec); state.accounts[em]=rec; setLogin(em); try{sessionStorage.setItem('rota.unlocked','1');}catch(e){} toast('Welcome, '+rec.name+'.'); logEntry(rec.name+' created their account'+(tid?' ('+(teamById(tid)||{}).name+')':'')); closeModal(); render(); }
+          catch(e){ console.error(e); m2.textContent='Could not save: '+((e&&e.message)||'try again'); }
+        }},'Create my account')));
+        if (match){ teamSel.value=match.team; fillNames(); sel.value=match.id; } else if (teams().length===1 && role!=='admin'){ teamSel.value=teams()[0].id; fillNames(); }
+        setTimeout(()=>teamSel.focus(),30);
+      };
+      pin.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+      bd.append(el('div',{class:'sec hl'}, el('h3',{},'Sign in'), el('div',{class:'fr'}, email), el('div',{class:'fr'}, pin, el('button',{class:'btn primary',onclick:go},'Continue')), msg), step2);
+      setTimeout(()=>email.focus(),30);
+    }
+    if (isAdmin()){
+      const sec=el('div',{class:'sec'}, el('h3',{},'Accounts (admin)'));
+      const entries=Object.entries(state.accounts); if (!entries.length) sec.append(el('div',{class:'note'},'Nobody has signed in yet.'));
+      for (const [key,x] of entries) sec.append(el('div',{class:'tog'}, el('div',{}, el('div',{class:'nm'},(x.name||nameOf(x.consultant))+' · '+x.role+(x.team&&teamById(x.team)?' · '+teamById(x.team).short:'')), el('div',{class:'why'},(x.email||key)+' · '+new Date(x.claimedAt).toLocaleDateString('en-GB'))), key!==state.login?el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>withPin('change a role',()=>write(()=>state.db.doc('accounts/'+key).set({...x,role:x.role==='admin'?(x.consultant?'consultant':'secretary'):'admin'}),'Role changed for '+(x.name||nameOf(x.consultant))))},x.role==='admin'?'Remove admin':'Make admin'), el('button',{class:'btn sm danger',onclick:()=>withPin('release this account',()=>write(()=>state.db.doc('accounts/'+key).delete(),'Account released: '+(x.name||nameOf(x.consultant))))},'Release')):el('span',{class:'note'},'you')));
+      sec.append(el('div',{class:'note'},'Team password: '+pwFor('consultant')+' · Admin password: '+pwFor('admin')+' (change both in Settings).'));
+      bd.append(sec);
+    }
+  });
+}
+$('#btnAccount').onclick=openAccount;
+
+/* ---------- change log ---------- */
+$('#btnLog').onclick=()=>modal('Recent changes', bd=>{ const box=el('div',{class:'log'}); if(!state.log.length) box.append(el('div',{},'No changes recorded yet.')); for (const e of state.log) box.append(el('div',{}, el('b',{},e.by+' '), e.text, ' · ', new Date(e.at).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}))); bd.append(box); });
+
+/* ---------- settings (admin) ---------- */
+let settingsTeam='';
+$('#btnSettings').onclick=()=>modal('Settings', bd=>{
+  const g={...G()};
+  const nameI=el('input',{class:'inp grow',value:g.appName||'',id:'st-name'}), subI=el('input',{class:'inp grow',value:g.subtitle||'',id:'st-sub'});
+  const pinI=el('input',{class:'inp',value:g.pin||'ROTA',id:'st-pin'}), apinI=el('input',{class:'inp',value:g.adminPin||'ROTAUHCW',id:'st-apin'}), domI=el('input',{class:'inp',value:g.emailDomain||'',id:'st-dom',placeholder:'any'});
+  bd.append(el('div',{class:'sec'}, el('h3',{},'Whole rota'), el('div',{class:'fr'}, el('label',{for:'st-name'},'Title'), nameI), el('div',{class:'fr'}, el('label',{for:'st-sub'},'Subtitle'), subI), el('div',{class:'fr'}, el('label',{for:'st-pin'},'Team password'), pinI, el('label',{for:'st-apin'},'Admin password'), apinI), el('div',{class:'fr'}, el('label',{for:'st-dom'},'Email domain required'), domI),
+    el('div',{class:'fr'}, el('button',{class:'btn sm primary',onclick:()=>{ const ng={...g,appName:nameI.value.trim()||'On-Call Rota',subtitle:subI.value.trim(),pin:pinI.value.trim()||'ROTA',adminPin:apinI.value.trim()||'ROTAUHCW',emailDomain:domI.value.trim().replace(/^@/,'')}; if (ng.pin.toLowerCase()===ng.adminPin.toLowerCase()){ toast('Team and admin passwords must differ.'); return; } withPin('save settings',()=>write(()=>state.db.doc('settings/main').set(ng),'Rota settings saved')); }},'Save'), el('span',{class:'note'},'Passwords are not case-sensitive. Signing in with the admin password creates an administrator account.'))));
+  // team picker
+  const tl=teams(); if (!teamById(settingsTeam)) settingsTeam=tl[0].id;
+  const tsel=el('select',{class:'inp',id:'st-team'}); for (const t of tl) tsel.append(el('option',{value:t.id},t.name)); tsel.value=settingsTeam; tsel.onchange=()=>{ settingsTeam=tsel.value; state.open(); };
+  const addTeam=el('button',{class:'btn sm',onclick:()=>{ const n=tl.length+1; const t=blankTeam('team'+Date.now().toString(36),n); withPin('add a team',()=>write(()=>state.db.doc('teams/'+t.id).set(t),'Team added: '+t.name).then(ok=>{ if(ok){ settingsTeam=t.id; } })); }},'Add team');
+  bd.append(el('div',{class:'sec'}, el('h3',{},'Teams'), el('div',{class:'fr'}, el('label',{for:'st-team'},'Edit team'), tsel, addTeam), el('div',{class:'note'},'Each team has its own on-call weekday, weekend week, consultants and 4-week cycle. All teams appear in everyone\'s calendar; a person\'s own team is highlighted.')));
+  const s=structuredClone(teamById(settingsTeam));
+  const tnI=el('input',{class:'inp',value:s.name,id:'t-name'}), tsI=el('input',{class:'inp sm',value:s.short||'',maxlength:'4',id:'t-short'}); const actI=el('input',{type:'checkbox',checked:s.active!==false,id:'t-active'});
+  const tbl=el('table',{}, el('tr',{}, el('th',{},'Name'), el('th',{},'Initials'), el('th',{},'On-call week'), el('th',{},'Clinic'), el('th',{},'')));
+  const drawRows=()=>{ while(tbl.rows.length>1) tbl.deleteRow(1); s.consultants.forEach((c,i)=>{ const nm=el('input',{class:'inp',value:c.name,oninput:e=>c.name=e.target.value,id:'c-name-'+i}); const sh=el('input',{class:'inp sm',value:c.short||'',maxlength:'4',oninput:e=>c.short=e.target.value.toUpperCase(),id:'c-short-'+i}); const sl=el('select',{class:'inp',onchange:e=>c.slot=Number(e.target.value),id:'c-slot-'+i}, el('option',{value:'0'},'not on rota'), ...[1,2,3,4].map(n=>el('option',{value:String(n)},'Week '+n))); sl.value=String(c.slot||0); const cl=el('input',{type:'checkbox',checked:!!c.clinic,onchange:e=>c.clinic=e.target.checked,id:'c-clinic-'+i,'aria-label':'attends fracture clinic'}); tbl.append(el('tr',{}, el('td',{},nm), el('td',{},sh), el('td',{},sl), el('td',{},cl), el('td',{}, el('button',{class:'btn sm danger',onclick:()=>{ s.consultants.splice(i,1); drawRows(); }},'Remove')))); }); };
+  drawRows();
+  const anchor=el('input',{class:'inp',type:'date',value:s.anchorDate,id:'st-anchor'}); const aw=el('select',{class:'inp',id:'st-aw'}, ...[1,2,3,4].map(n=>el('option',{value:String(n)},'week '+n))); aw.value=String(s.anchorWeek);
+  const ocd=el('select',{class:'inp',id:'st-ocd'}, ...DNL.map((n,i)=>el('option',{value:String(i)},n))); ocd.value=String(s.oncallWeekday);
+  const ww=el('select',{class:'inp',id:'st-ww'}, ...[1,2,3,4].map(n=>el('option',{value:String(n)},'week '+n))); ww.value=String(s.weekendWeek);
+  const cds=el('div',{class:'fr'}); DNL.forEach((n,i)=>{ const cb=el('input',{type:'checkbox',checked:(s.clinicWeekdays||[]).includes(i),id:'st-cd-'+i}); cds.append(el('label',{for:'st-cd-'+i,style:'display:inline-flex;gap:4px;align-items:center'},cb,n.slice(0,3))); });
+  const pat=(s.weekendPattern||[]).map(p=>p.slice());
+  const ptbl=el('table',{}, el('tr',{}, el('th',{},'Cycle'), el('th',{},'Long weekend'), el('th',{},'Short weekend'), el('th',{},'')));
+  const slotSel=(v,on)=>{ const sel=el('select',{class:'inp',onchange:on}, ...[1,2,3,4].map(n=>{ const c=s.consultants.find(x=>x.slot===n); return el('option',{value:String(n)},'Week '+n+(c?' · '+c.name:'')); })); sel.value=String(v); return sel; };
+  const drawPat=()=>{ while(ptbl.rows.length>1) ptbl.deleteRow(1); pat.forEach((p,i)=>ptbl.append(el('tr',{}, el('td',{},String(i+1)), el('td',{},slotSel(p[0],e=>p[0]=Number(e.target.value))), el('td',{},slotSel(p[1],e=>p[1]=Number(e.target.value))), el('td',{}, el('button',{class:'btn sm danger',onclick:()=>{ pat.splice(i,1); drawPat(); }},'Remove'))))); };
+  drawPat();
+  bd.append(el('div',{class:'sec hl'}, el('h3',{},s.name),
+    el('div',{class:'fr'}, el('label',{for:'t-name'},'Team name'), tnI, el('label',{for:'t-short'},'Tag'), tsI, el('label',{for:'t-active',style:'display:inline-flex;gap:4px;align-items:center'},actI,'shown in calendar')),
+    el('h3',{},'Consultants'), el('div',{class:'note'},'Give each on-call consultant a week number; everyone with a number is populated 4-weekly for the whole rota. Clinic-only consultants stay "not on rota".'), el('div',{class:'tw'},tbl), el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>{ s.consultants.push({id:s.id+'-c'+Date.now().toString(36),name:'Mr ',short:'',slot:0,clinic:true}); drawRows(); }},'Add consultant')),
+    el('h3',{},'4-week cycle'), el('div',{class:'fr'}, el('label',{for:'st-anchor'},'The date'), anchor, el('label',{for:'st-aw'},'falls in'), aw), el('div',{class:'note'},'Everything is worked out from this one date. Weeks run Monday to Sunday.'), el('div',{class:'fr'}, el('label',{for:'st-ocd'},'Weekday on call'), ocd, el('label',{for:'st-ww'},'Team weekend in'), ww), el('div',{class:'fr'}, el('label',{},'Fracture clinic days'), cds),
+    el('h3',{},'Weekend pairs'), el('div',{class:'note'},'These rows repeat in order every 4 weeks; with 4 rows each consultant does one long and one short weekend every 16 weeks. One-off swaps are made on the day itself.'), el('div',{class:'tw'},ptbl), el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>{ pat.push([1,2]); drawPat(); }},'Add row')),
+    el('div',{class:'fr'}, el('button',{class:'btn primary',onclick:()=>{
+      s.name=tnI.value.trim()||s.name; s.short=tsI.value.trim().toUpperCase()||s.short; s.active=actI.checked; s.anchorDate=anchor.value||s.anchorDate; s.anchorWeek=Number(aw.value); s.oncallWeekday=Number(ocd.value); s.weekendWeek=Number(ww.value);
+      s.clinicWeekdays=DNL.map((n,i)=>i).filter(i=>$('#st-cd-'+i).checked);
+      s.consultants=s.consultants.filter(c=>c.name.trim()).map(c=>({...c,name:c.name.trim()}));
+      const slots=s.consultants.filter(c=>c.slot).map(c=>c.slot); if (new Set(slots).size!==slots.length){ toast('Two consultants have the same week number.'); return; }
+      s.weekendPattern=pat.filter(p=>p[0]!==p[1]); if(!s.weekendPattern.length){ toast('Add at least one weekend pair.'); return; }
+      withPin('save team settings',()=>write(()=>state.db.doc('teams/'+s.id).set(s), s.name+' settings saved').then(ok=>{ if(ok) closeModal(); }));
+    }},'Save '+s.name), el('span',{class:'note'},'Applies to everyone immediately. Existing swaps stay attached to their dates.'))));
+});
+
+/* ---------- calendar export (.ics) ---------- */
+$('#btnExport').onclick=()=>modal('Calendar file', bd=>{
+  setTeam(primaryTeamId());
+  const who=consSel(teamOf(myId())===S().id?myId():'',true); who.id='ex-who'; who.firstChild.textContent='Whole '+S().name;
+  const months=el('select',{class:'inp',id:'ex-months'}, el('option',{value:'6'},'next 6 months'), el('option',{value:'12',selected:true},'next 12 months'), el('option',{value:'24'},'next 24 months'));
+  const copyBox=el('textarea',{class:'inp',rows:'8',style:'width:100%;font-family:var(--mono);font-size:11px',hidden:true,id:'ex-copy'});
+  const go=el('button',{class:'btn primary',onclick:()=>{ setTeam(primaryTeamId()); const ics=buildIcs(who.value,Number(months.value)); try { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'})); a.download=(who.value?nameOf(who.value).replace(/\s+/g,'_'):S().short)+'_oncall.ics'; document.body.append(a); a.click(); a.remove(); toast('Calendar file downloaded. Import it into Google Calendar or Outlook.'); } catch(e){ copyBox.hidden=false; copyBox.value=ics; } }},'Download .ics file');
+  bd.append(el('div',{class:'sec'}, el('h3',{},'Export '+S().name+' on-call duties'), el('div',{class:'fr'}, el('label',{for:'ex-who'},'For'), who, months, go), el('div',{class:'note'},'Weekday on call, weekend duties and post-take Mondays as all-day events, with approved swaps applied. Re-export after swaps; calendar apps do not sync back.'), copyBox));
+});
+function buildIcs(who, months){
+  const t=parse(todayKey()); const end=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+months,t.getUTCDate()));
+  const esc=s=>String(s).replace(/[\\;,]/g,m=>'\\'+m); const stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+  const ev=[]; const add=(d,summary,desc)=>{ const k=ymd(d).replace(/-/g,''); const k2=ymd(addDays(d,1)).replace(/-/g,''); ev.push(['BEGIN:VEVENT','UID:'+S().id+'-'+k+'-'+summary.replace(/\W+/g,'')+'@rota','DTSTAMP:'+stamp,'DTSTART;VALUE=DATE:'+k,'DTEND;VALUE=DATE:'+k2,'SUMMARY:'+esc(summary),'DESCRIPTION:'+esc(desc),'END:VEVENT'].join('\r\n')); };
+  for (let d=t; d<end; d=addDays(d,1)){ const i=dayInfo(d);
+    if (i.oncall && (!who||i.oncall.id===who)) add(d,'On call: '+nameOf(i.oncall.id)+(i.oncall.override?' (swap)':''),'Weekday on call, '+S().name);
+    if (i.weekend){ const w=i.weekend; if (i.dow===4&&(!who||w.long===who)) add(d,'On call (long weekend, Fri): '+nameOf(w.long),'On call + trauma list'); if (i.dow===5){ if(!who||w.short===who) add(d,'On call (short weekend): '+nameOf(w.short),'On call + trauma list'); if(!who||w.long===who) add(d,'Ward round (long weekend): '+nameOf(w.long),'Morning ward round, then home'); } if (i.dow===6){ if(!who||w.long===who) add(d,'On call (long weekend, Sun): '+nameOf(w.long),'On call + trauma list'); if(!who||w.short===who) add(d,'Ward round (short weekend): '+nameOf(w.short),'Ward round'); } }
+    if (i.post && (!who||i.post.long===who)) add(d,'Post-take + VFC: '+nameOf(i.post.long),'Post-take ward round and virtual fracture clinic');
+    if (i.clinic && who && i.clinic.present.includes(who)) add(d,'Fracture clinic','Consultant present in fracture clinic'+(i.clinic.registrar?' · Reg: '+i.clinic.registrar:''));
+  }
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Team rota//EN','CALSCALE:GREGORIAN','X-WR-CALNAME:'+esc(S().name)+(who?' · '+esc(nameOf(who)):''),...ev,'END:VCALENDAR'].join('\r\n')+'\r\n';
+}
+
+/* ---------- boot ---------- */
+render();
+(async()=>{
+  let db=null;
+  try { firebase.initializeApp(FIREBASE_CONFIG); db=firebase.firestore(); } catch(e){ console.error(e); }
+  if (!db){ state.canWrite=false; render(); return; }
+  state.db=db; render();
+  const err=e=>{ console.error(e); if (e&&(e.code==='permission-denied')){ state.canWrite=false; render(); } };
+  db.doc('settings/main').onSnapshot(snap=>{ if (snap.exists) state.G={...DEFAULT_G,...snap.data()}; else db.doc('settings/main').set(DEFAULT_G).catch(()=>{}); render(); }, err);
+  let seeded=false;
+  db.collection('teams').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={...d.data(),id:d.id}; state.teams=o; if (snap.empty && !seeded){ seeded=true; db.doc('teams/'+DEFAULT_TEAM.id).set(DEFAULT_TEAM).catch(()=>{}); } render(); }, err);
+  const coll=(name,target)=>db.collection(name).onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state[target]=o; render(); }, err);
+  coll('overrides','overrides'); coll('weekends','weekends'); coll('clinic','clinic'); coll('leave','leave');
+  let firstReq=true;
+  db.collection('requests').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state.requests=o;
+    if (!firstReq && acct()) for (const ch of snap.docChanges()) { const r={id:ch.doc.id,...ch.doc.data()}; if (ch.type==='added' && r.status==='pending' && (r.to===myId()||(isAdmin()&&r.to==='admin')) && r.createdBy!==actor()) toast('New request from '+nameOf(r.from)+' waiting for you.'); }
+    firstReq=false; render(); }, err);
+  let firstAcct=true;
+  db.collection('accounts').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state.accounts=o; syncAcct(); render(); if (firstAcct){ firstAcct=false; if (!state.acct) setTimeout(openAccount,500); } }, err);
+  db.doc('log/recent').onSnapshot(snap=>{ state.log=(snap.exists&&snap.data().entries)||[]; if (state.open) state.open(); }, ()=>{});
+})();
+})();
 </script>
+
 </body>
 </html>
