@@ -196,6 +196,7 @@ td .inp.sm{width:5.5em}
   <button class="btn sm" id="btnRequests">Notifications</button>
   <button class="btn sm" id="btnLeave">Leave</button>
   <button class="btn sm" id="btnExport">Calendar file</button>
+  <button class="btn sm" id="btnReport">Report</button>
   <button class="btn sm" id="btnLog">Changes</button>
   <button class="btn sm" id="btnSettings" hidden>Settings</button>
   <a class="btn sm" href="help.html" id="btnHelp">Help</a>
@@ -300,6 +301,11 @@ function weekendFor(d){
   return { friKey, fri, long:(ov&&ov.long)||base.long, short:(ov&&ov.short)||base.short, baseLong:base.long, baseShort:base.short, override:ov };
 }
 function postTakeFor(d){ if (dow(d)!==0) return null; return weekendFor(addDays(d,-1)); }
+function postTakeWeekdayFor(d){ // day after the team's weekday on call → that consultant does post-take ward round + VFC
+  const prev=addDays(d,-1); if (dow(prev)!==S().oncallWeekday) return null;
+  const wi=weekInfo(prev); const base=(bySlot(wi.wk)||{}).id||''; const ov=state.overrides[dk(ymd(prev))]||null;
+  const id=(ov&&ov.oncall)||base; return id ? { id, override:ov, date:ymd(prev) } : null;
+}
 function pendingFor(key){ return Object.values(state.requests).filter(r=>r.status==='pending'&&r.type==='swap'&&r.team===S().id&&((r.give&&r.give.date===key)||(r.take&&r.take.date===key))); }
 function dayInfo(d){
   const key=ymd(d); const wi=weekInfo(d); const dd=dow(d);
@@ -307,6 +313,7 @@ function dayInfo(d){
   if (dd===S().oncallWeekday){ const base=(bySlot(wi.wk)||{}).id||''; const ov=state.overrides[dk(key)]||null; info.oncall={ id:(ov&&ov.oncall)||base, base, override:ov }; }
   const w=weekendFor(d); if (w) info.weekend=w;
   const pt=postTakeFor(d); if (pt) info.post=pt;
+  const pw=postTakeWeekdayFor(d); if (pw) info.postWk=pw;
   if ((S().clinicWeekdays||[]).includes(dd)){
     const busy=new Set(); if (info.oncall) busy.add(info.oncall.id);
     if (w){ if (dd===4||dd===6) busy.add(w.long); if (dd===5) busy.add(w.short); }
@@ -361,6 +368,7 @@ function chipsFor(info, compact){
     if (info.dow===5){ out.push(chip('short',(compact?'S ':'Short: ')+N(w.short)+(compact?'':' · on call + trauma'),w.short,sw)); out.push(chip('long',(compact?'L ':'Long: ')+N(w.long)+(compact?' WR':' · ward round am'),w.long,sw)); }
     if (info.dow===6){ out.push(chip('long',(compact?'L ':'Long: ')+N(w.long)+(compact?'':' · on call + trauma'),w.long,sw)); out.push(chip('short',(compact?'S ':'Short: ')+N(w.short)+(compact?' WR':' · ward round'),w.short,sw)); } }
   if (info.post) out.push(chip('post',(compact?'PT ':'Post-take + VFC: ')+N(info.post.long),info.post.long,!!info.post.override));
+  if (info.postWk) out.push(chip('post',(compact?'PT ':'Post-take + VFC: ')+N(info.postWk.id),info.postWk.id,!!info.postWk.override));
   if (info.clinic){ const n=info.clinic.present.length; if (n===0) out.push(chip('warn', compact?'Clinic: none!':'Fracture clinic: no consultant')); else out.push(chip('clinic',(compact?'FC ':'Fracture clinic: ')+info.clinic.present.map(N).join(compact?' ':', ')+(info.clinic.registrar&&!compact?' · Reg: '+info.clinic.registrar:''))); }
   for (const l of info.leave) out.push(chip('leave',N(l.who)+' '+(compact?'away':(l.type||'away'))));
   if (info.pending.length) out.push(chip('pend', compact?'Swap pending':'Swap pending: '+info.pending.map(r=>N(r.from)+' → '+N(r.to)).join(', ')));
@@ -370,6 +378,8 @@ function chipsFor(info, compact){
 function otherChips(info, t){
   const out=[]; const tag=(t.short||t.name)+' ';
   if (info.oncall) out.push(el('span',{class:'chip other'},tag+'OC '+shortOf(info.oncall.id)));
+  if (info.postWk) out.push(el('span',{class:'chip other'},tag+'PT '+shortOf(info.postWk.id)));
+  if (info.post) out.push(el('span',{class:'chip other'},tag+'PT '+shortOf(info.post.long)));
   if (info.weekend){ const w=info.weekend; if (info.dow===4) out.push(el('span',{class:'chip other'},tag+'L '+shortOf(w.long))); if (info.dow===5) out.push(el('span',{class:'chip other'},tag+'S '+shortOf(w.short)+' · L '+shortOf(w.long)+' WR')); if (info.dow===6) out.push(el('span',{class:'chip other'},tag+'L '+shortOf(w.long)+' · S '+shortOf(w.short)+' WR')); }
   return out;
 }
@@ -382,7 +392,7 @@ function renderNow(){
   if (w) box.append(el('div',{class:'tile'}, el('div',{class:'k'},(w.fri<=t&&addDays(w.fri,2)>=t)?'This weekend':'Next '+S().name+' weekend'), el('div',{class:'v'},fmtShort(w.fri)+' – '+fmtShort(addDays(w.fri,2))), el('div',{class:'d'},'Long: '+nameOf(w.long)+' · Short: '+nameOf(w.short))));
   let cd=null; for (let i=0;i<8;i++){ const inf=dayInfo(addDays(t,i)); if (inf.clinic){ cd=inf; break; } }
   if (cd){ const n=cd.clinic.present.length; box.append(el('div',{class:'tile'+(n===0?' alert':'')}, el('div',{class:'k'},cd.key===key?'Fracture clinic today':'Next fracture clinic · '+fmtShort(cd.d)), el('div',{class:'v'},n===0?'No consultant':cd.clinic.present.map(nameOf).join(', ')), el('div',{class:'d'},(cd.clinic.registrar?'Registrar: '+cd.clinic.registrar+' · ':'')+'Tap the day to change'))); }
-  const inbox=myInbox(); const news=myNews(); if (inbox.length||news.length) box.append(el('div',{class:'tile pend'}, el('div',{class:'k'},'Notifications'), el('div',{class:'v'},(inbox.length?inbox.length+' to approve or decline':'')+(inbox.length&&news.length?' · ':'')+(news.length?news.length+' new decision'+(news.length===1?'':'s'):'')), el('button',{class:'btn sm',onclick:openRequests},'Open')));
+  const inbox=myInbox(); const news=myNews(); const iss=myIssues(); if (inbox.length||news.length||iss.length) box.append(el('div',{class:'tile pend'}, el('div',{class:'k'},'Notifications'), el('div',{class:'v'},[inbox.length?inbox.length+' to approve or decline':'', news.length?news.length+' new decision'+(news.length===1?'':'s'):'', iss.length?iss.length+(isAdmin()?' problem'+(iss.length===1?'':'s')+' reported':' report'+(iss.length===1?'':'s')+' answered'):''].filter(Boolean).join(' · ')), el('button',{class:'btn sm',onclick:openRequests},'Open')));
   const away=leaveOn(key); if (away.length) box.append(el('div',{class:'tile'}, el('div',{class:'k'},'Away today'), el('div',{class:'v'},away.map(l=>nameOf(l.who)).join(', '))));
 }
 function renderMonth(){
@@ -397,7 +407,7 @@ function renderMonth(){
     const mkOc=()=>{ const a=[]; for (const t of others){ setTeam(t.id); a.push(...otherChips(dayInfo(d),t)); } setTeam(pid); return a; }; const oc=mkOc(); const oc2=mkOc();
     grid.append(el('button',{class:'cell'+(out?' out':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
       el('div',{class:'dn'}, el('b',{},d.getUTCDate()), dow(d)===0?el('span',{class:'wk'},'WK '+info.wk):''), ...chipsFor(info,true), ...oc));
-    if (!out){ const quiet=!duty&&!info.post&&!info.clinic&&!info.leave.length&&!info.pending.length&&!oc.length;
+    if (!out){ const quiet=!duty&&!info.post&&!info.postWk&&!info.clinic&&!info.leave.length&&!info.pending.length&&!oc.length;
       list.append(el('button',{class:'row'+(quiet?' quiet':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
         el('div',{class:'dn'}, DN[dow(d)], el('b',{},d.getUTCDate())),
         el('div',{class:'body'}, dow(d)===0?el('div',{class:'wkl'},S().name+' rota week '+info.wk+(info.wk===S().weekendWeek?' · team weekend':'')):null, ...(quiet?[el('span',{class:'note'},'—')]:chipsFor(info,false)), ...oc2))); }
@@ -408,7 +418,7 @@ function renderLegend(){ setTeam(primaryTeamId()); const L=$('#legend'); L.inner
 function renderTop(){
   const b=$('#btnAccount'); b.innerHTML='';
   if (!state.db) b.append('Preview'); else if (!acct()) b.append('Sign in'); else b.append(el('span',{}, el('b',{},actor()), isAdmin()?' · Admin':(isSec()?' · Secretary':''), myTeam()&&teamById(myTeam())?' · '+teamById(myTeam()).short:''));
-  const r=$('#btnRequests'); r.innerHTML='Notifications'; const n=myInbox().length+myNews().length; if (n) r.append(' ',el('span',{class:'badge'},n));
+  const r=$('#btnRequests'); r.innerHTML='Notifications'; const n=myInbox().length+myNews().length+myIssues().length; if (n) r.append(' ',el('span',{class:'badge'},n));
   $('#btnSettings').hidden=!isAdmin();
   const tp=$('#teamPick'); const ts=$('#teamSel'); tp.hidden=teams().length<2; ts.innerHTML=''; for (const t of teams()) ts.append(el('option',{value:t.id},t.name)); ts.value=primaryTeamId();
   const ro=$('#roNote'); ro.hidden=true;
@@ -492,6 +502,7 @@ function openDay(key, teamId){
       if (canEditDuty()) sec.append(adminWeekend(w));
       bd.append(sec);
     }
+    if (info.postWk) bd.append(el('div',{class:'sec'}, el('h3',{},'Post-take '+DNL[info.dow]), el('div',{class:'big'},nameOf(info.postWk.id)), el('div',{class:'note'},'Post-take ward round and virtual fracture clinic after '+DNL[S().oncallWeekday]+' on call. It follows whoever was on call, including swaps.')));
     if (info.post) bd.append(el('div',{class:'sec'}, el('h3',{},'Post-take Monday'), el('div',{class:'big'},nameOf(info.post.long)), el('div',{class:'note'},'Post-take ward round and virtual fracture clinic after the long weekend. It follows whoever does the long weekend.')));
     if (info.pending.length){ const sec=el('div',{class:'sec'}, el('h3',{},'Pending swaps')); for (const r of info.pending) sec.append(requestCard(r)); bd.append(sec); }
     if (info.clinic){
@@ -599,6 +610,7 @@ $('#btnLeave').onclick=()=>modal('Leave and absence', bd=>{
 
 /* ---------- requests & notifications ---------- */
 function myInbox(){ if (!acct()) return []; return Object.values(state.requests).filter(r=>r.status==='pending'&&((isAdmin()&&r.to==='admin')||(r.to===myId()&&myId()))); }
+function myIssues(){ if (!acct()) return []; const me=actor(); return Object.values(state.requests).filter(r=>r.type==='issue'&&((isAdmin()&&r.status==='pending')||(r.createdBy===me&&r.status!=='pending'&&r.decidedAt&&r.decidedAt>seenAt()))); }
 const seenAt = () => (acct()&&acct().seenAt)||state.seenLocal||'';
 function myNews(){ if (!acct()) return []; const me=myId(); return Object.values(state.requests).filter(r=>r.status!=='pending'&&r.decidedAt&&r.decidedAt>seenAt()&&(r.from===me||(r.offered&&r.to===me)||(isAdmin()&&r.to==='admin'&&r.decidedBy!==actor()))); }
 function markSeen(){ const now=nowIso(); state.seenLocal=now; try{localStorage.setItem('rota.seen',now);}catch(e){} if (acct()&&state.db&&state.login){ state.acct={...acct(),seenAt:now}; state.db.doc('accounts/'+state.login).set(state.acct).catch(()=>{}); } }
@@ -607,8 +619,14 @@ function requestCard(r){
   let title, meta;
   if (r.type==='swap'){ title=(tn?tn+' · ':'')+(r.offered?nameOf(r.to)+' offers to cover '+nameOf(r.from)+'\'s ':nameOf(r.from)+' asks '+nameOf(r.to)+' to cover ')+r.give.label; meta=(r.take?'In return: '+nameOf(r.to)+' hands '+r.take.label+' to '+nameOf(r.from):'Nothing in return')+(r.note?' · "'+r.note+'"':''); }
   else if (r.type==='slot'){ title=(tn?tn+' · ':'')+nameOf(r.from)+' asks to move to on-call week '+r.slot+' (from week '+((byId(r.from)||{}).slot||'—')+')'; meta='Needs administrator approval'+(r.note?' · "'+r.note+'"':''); }
+  else if (r.type==='issue'){ title='Problem reported by '+(r.createdBy||'someone')+(r.date?' · '+fmtKey(r.date):''); meta=r.note||''; if (r.resolution) meta+=' · Resolution: '+r.resolution; }
   else { title=r.title||'Request'; meta=r.note||''; }
   card.append(el('div',{class:'t'},title), el('div',{class:'m'},meta), el('div',{class:'m'},'Sent '+new Date(r.createdAt).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'})+(r.status!=='pending'?' · '+r.status+(r.decidedBy?' by '+r.decidedBy:''):'')));
+  if (r.type==='issue'){
+    if (r.status==='pending' && isAdmin()){ const res=el('input',{class:'inp grow',placeholder:'what was done (shown to the reporter)',id:'res-'+r.id}); card.append(el('div',{class:'fr'}, res, el('button',{class:'btn primary sm',onclick:()=>withPin('resolve this report',()=>write(()=>state.db.doc('requests/'+r.id).set({...r,status:'resolved',resolution:res.value.trim(),decidedAt:nowIso(),decidedBy:actor()}),'Report resolved'))},'Mark resolved'))); }
+    else if (r.status==='pending') card.append(el('div',{class:'m'},'Waiting for the administrator'));
+    return card;
+  }
   if (r.status==='pending'){
     const fr=el('div',{class:'fr'});
     if (canDecide(r)) fr.append(el('button',{class:'btn primary sm',onclick:()=>decide(r,'approved')},'Approve'), el('button',{class:'btn sm danger',onclick:()=>decide(r,'declined')},'Decline'));
@@ -633,6 +651,7 @@ function openRequests(){ modal('Notifications', bd=>{
   const inbox=myInbox(); const news=myNews(); const mine=all.filter(r=>r.from===myId()||(r.offered&&r.to===myId()));
   if (!acct()) { bd.append(el('div',{class:'note'},'Sign in to see your notifications.')); return; }
   bd.append(el('div',{class:'sec hl'}, el('h3',{},'For you to decide', el('span',{class:'st'},inbox.length)), ...(inbox.length?inbox.map(requestCard):[el('div',{class:'note'},'Nothing waiting for you.')])));
+  const issues=myIssues(); if (issues.length) bd.append(el('div',{class:'sec'}, el('h3',{},isAdmin()?'Problems reported':'Your reports', el('span',{class:'st'},issues.length)), ...issues.map(requestCard), isAdmin()?null:el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>{ markSeen(); render(); }},'Mark as read'))));
   if (news.length) bd.append(el('div',{class:'sec'}, el('h3',{},'New decisions'), ...news.map(requestCard), el('div',{class:'fr'}, el('button',{class:'btn sm',onclick:()=>{ markSeen(); render(); }},'Mark as read'))));
   if (canWriteAny() && byId(myId())) bd.append(el('div',{class:'sec'}, el('h3',{},'My regular on-call week'), el('div',{class:'note'},'You are on '+(teamById(myTeam())||{}).name+' week '+((byId(myId())||{}).slot||'—')+'. A permanent change needs the administrator\'s approval; one-off swaps are made from the day itself.'), slotRequestForm()));
   const older=mine.filter(r=>!news.includes(r)); if (older.length) bd.append(el('div',{class:'sec'}, el('h3',{},'Your requests'), ...older.slice(0,20).map(requestCard)));
@@ -719,6 +738,13 @@ function openAccount(){
 }
 $('#btnAccount').onclick=openAccount;
 
+/* ---------- report a problem ---------- */
+$('#btnReport').onclick=()=>{ if (!acct()){ openAccount(); return; } modal('Report a problem', bd=>{
+  const date=el('input',{class:'inp',type:'date',id:'rp-date'}); const note=el('textarea',{class:'inp',rows:'4',style:'width:100%',placeholder:'What is wrong? e.g. "I am down for 12 Nov but I swapped with Mr Isaac in September", or "Mr Young should not be in clinic on Fridays"',id:'rp-note'});
+  bd.append(el('div',{class:'sec hl'}, el('h3',{},'Tell the administrator'), el('div',{class:'note'},'Reports go to the administrator\'s notifications (no email). You will see the answer under Notifications once it is resolved.'), el('div',{class:'fr'}, el('label',{for:'rp-date'},'Day it concerns (optional)'), date), note,
+    el('div',{class:'fr'}, el('button',{class:'btn primary',onclick:()=>{ if (!note.value.trim()){ toast('Describe the problem first.'); return; } withPin('send this report',()=>{ const id=newId('issue'); write(()=>state.db.doc('requests/'+id).set({type:'issue',team:myTeam(),from:myId()||'',to:'admin',date:date.value||'',note:note.value.trim(),status:'pending',createdAt:nowIso(),createdBy:actor()}),'Problem reported').then(ok=>{ if(ok) closeModal(); }); }); }},'Send report'), el('button',{class:'btn',onclick:closeModal},'Cancel'))));
+}); };
+
 /* ---------- change log ---------- */
 $('#btnLog').onclick=()=>modal('Recent changes', bd=>{ const box=el('div',{class:'log'}); if(!state.log.length) box.append(el('div',{},'No changes recorded yet.')); for (const e of state.log) box.append(el('div',{}, el('b',{},e.by+' '), e.text, ' · ', new Date(e.at).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}))); bd.append(box); });
 
@@ -782,6 +808,7 @@ function buildIcs(who, months){
     if (i.oncall && (!who||i.oncall.id===who)) add(d,'On call: '+nameOf(i.oncall.id)+(i.oncall.override?' (swap)':''),'Weekday on call, '+S().name);
     if (i.weekend){ const w=i.weekend; if (i.dow===4&&(!who||w.long===who)) add(d,'On call (long weekend, Fri): '+nameOf(w.long),'On call + trauma list'); if (i.dow===5){ if(!who||w.short===who) add(d,'On call (short weekend): '+nameOf(w.short),'On call + trauma list'); if(!who||w.long===who) add(d,'Ward round (long weekend): '+nameOf(w.long),'Morning ward round, then home'); } if (i.dow===6){ if(!who||w.long===who) add(d,'On call (long weekend, Sun): '+nameOf(w.long),'On call + trauma list'); if(!who||w.short===who) add(d,'Ward round (short weekend): '+nameOf(w.short),'Ward round'); } }
     if (i.post && (!who||i.post.long===who)) add(d,'Post-take + VFC: '+nameOf(i.post.long),'Post-take ward round and virtual fracture clinic');
+    if (i.postWk && (!who||i.postWk.id===who)) add(d,'Post-take + VFC: '+nameOf(i.postWk.id),'Post-take ward round and virtual fracture clinic');
     if (i.clinic && who && i.clinic.present.includes(who)) add(d,'Fracture clinic','Consultant present in fracture clinic'+(i.clinic.registrar?' · Reg: '+i.clinic.registrar:''));
   }
   return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Team rota//EN','CALSCALE:GREGORIAN','X-WR-CALNAME:'+esc(S().name)+(who?' · '+esc(nameOf(who)):''),...ev,'END:VCALENDAR'].join('\r\n')+'\r\n';
@@ -802,7 +829,7 @@ render();
   coll('overrides','overrides'); coll('weekends','weekends'); coll('clinic','clinic'); coll('leave','leave');
   let firstReq=true;
   db.collection('requests').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state.requests=o;
-    if (!firstReq && acct()) for (const ch of snap.docChanges()) { const r={id:ch.doc.id,...ch.doc.data()}; if (ch.type==='added' && r.status==='pending' && (r.to===myId()||(isAdmin()&&r.to==='admin')) && r.createdBy!==actor()) toast('New request from '+nameOf(r.from)+' waiting for you.'); }
+    if (!firstReq && acct()) for (const ch of snap.docChanges()) { const r={id:ch.doc.id,...ch.doc.data()}; if (ch.type==='added' && r.status==='pending' && (r.to===myId()||(isAdmin()&&r.to==='admin')) && r.createdBy!==actor()) toast(r.type==='issue'?'New problem reported by '+r.createdBy:'New request from '+nameOf(r.from)+' waiting for you.'); }
     firstReq=false; render(); }, err);
   let firstAcct=true;
   db.collection('accounts').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state.accounts=o; syncAcct(); render(); if (firstAcct){ firstAcct=false; if (!state.acct) setTimeout(openAccount,500); } }, err);
