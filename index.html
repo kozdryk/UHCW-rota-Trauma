@@ -183,6 +183,20 @@ td .inp.sm{width:5.5em}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(20px);opacity:0}}@media (min-width:760px){.sheet{animation:none}}}
 .ptr{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;z-index:12;background:var(--nhs);color:#fff;font-size:13px;font-weight:600;transition:height .15s}
 .ptr span{padding-bottom:8px}
+
+/* 4-week cycle colours (week 1 = Team 1 … week 4 = Team 4) */
+:root{--wk1:#005eb8;--wk1-bg:#e3eef9;--wk2:#00a499;--wk2-bg:#dff4f2;--wk3:#8a1538;--wk3-bg:#f6e3ea;--wk4:#ed8b00;--wk4-bg:#fff1dc}
+.cell.wk1 .dn,.row.wk1 .dn{color:var(--wk1)} .cell.wk2 .dn,.row.wk2 .dn{color:var(--wk2)} .cell.wk3 .dn,.row.wk3 .dn{color:var(--wk3)} .cell.wk4 .dn,.row.wk4 .dn{color:var(--wk4)}
+.cell .wkpill,.row .wkpill{display:inline-block;border-radius:4px;padding:0 5px;font-size:10px;font-weight:700;letter-spacing:.05em;color:#fff}
+.wk1 .wkpill{background:var(--wk1)} .wk2 .wkpill{background:var(--wk2)} .wk3 .wkpill{background:var(--wk3)} .wk4 .wkpill{background:var(--wk4)}
+.cell.duty .dn b{color:var(--warn)}
+.grid .wkband{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:4px}
+.list .wkband{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:6px}
+.wkband.wk1{background:var(--wk1-bg);color:var(--wk1)} .wkband.wk2{background:var(--wk2-bg);color:var(--wk2)} .wkband.wk3{background:var(--wk3-bg);color:var(--wk3)} .wkband.wk4{background:var(--wk4-bg);color:var(--wk4)}
+.wkband .wkn{display:inline-block;background:currentColor;border-radius:4px;padding:0 6px}
+.wkband .wkn span{color:#fff}
+.wkband .who{font-weight:600;text-transform:none;letter-spacing:0;color:inherit;font-size:12px}
+.legend .wkdot{display:inline-flex;gap:4px;align-items:center}
 </style>
 </head>
 <body>
@@ -249,7 +263,7 @@ const FIXED_TEAMS=[1,2,3,4];
 
 /* ---------- state ---------- */
 const state = { G: {...DEFAULT_G}, teams:{}, overrides:{}, weekends:{}, clinic:{}, leave:{}, requests:{}, accounts:{}, log:[], db:null, acct:null, login:'', canWrite:true, open:null, seenLocal:'', viewTeam:'', sheetTeam:'' };
-try { state.login = localStorage.getItem('rota.login') || ''; state.seenLocal = localStorage.getItem('rota.seen') || ''; state.viewTeam = localStorage.getItem('rota.viewTeam') || ''; } catch(e) {}
+try { state.login = localStorage.getItem('rota.login') || ''; state.seenLocal = localStorage.getItem('rota.seen') || ''; state.viewTeam = sessionStorage.getItem('rota.viewTeam') || ''; } catch(e) {}
 const unlocked = () => { try { return sessionStorage.getItem('rota.unlocked')==='1'; } catch(e){ return false; } };
 const emailKey = em => (em||'').trim().toLowerCase();
 
@@ -355,7 +369,7 @@ const canDecide = r => canWriteAny() && (isAdmin() || (r.to===myId() && r.to!=='
 const actor = () => acct() ? (acct().consultant ? nameOf(acct().consultant) : (acct().name||'Secretary')) : 'Someone';
 const pwFor = role => role==='admin' ? (G().adminPin||'ROTAUHCW') : (G().pin||'ROTA');
 const pwMatches = (pw, role) => (pw||'').trim().toLowerCase()===pwFor(role).toLowerCase();
-const primaryTeamId = () => { const t = teamById(state.viewTeam) ? state.viewTeam : (teamById(myTeam()) ? myTeam() : teams()[0].id); return t; };
+const primaryTeamId = () => { if (teamById(state.viewTeam)) return state.viewTeam; if (teamById(myTeam())) return myTeam(); return teams()[0].id; };
 
 /* ---------- rendering ---------- */
 let viewY, viewM; { const t=parse(todayKey()); viewY=t.getUTCFullYear(); viewM=t.getUTCMonth(); }
@@ -395,6 +409,11 @@ function renderNow(){
   const inbox=myInbox(); const news=myNews(); const iss=myIssues(); if (inbox.length||news.length||iss.length) box.append(el('div',{class:'tile pend'}, el('div',{class:'k'},'Notifications'), el('div',{class:'v'},[inbox.length?inbox.length+' to approve or decline':'', news.length?news.length+' new decision'+(news.length===1?'':'s'):'', iss.length?iss.length+(isAdmin()?' problem'+(iss.length===1?'':'s')+' reported':' report'+(iss.length===1?'':'s')+' answered'):''].filter(Boolean).join(' · ')), el('button',{class:'btn sm',onclick:openRequests},'Open')));
   const away=leaveOn(key); if (away.length) box.append(el('div',{class:'tile'}, el('div',{class:'k'},'Away today'), el('div',{class:'v'},away.map(l=>nameOf(l.who)).join(', '))));
 }
+function weekBand(info,d){
+  const tOfWeek=allTeams()[info.wk-1]; const active=tOfWeek && tOfWeek.active!==false;
+  const b=el('div',{class:'wkband wk'+info.wk}, el('span',{class:'wkn'}, el('span',{},'Week '+info.wk)), el('span',{},(tOfWeek?tOfWeek.name:'Team '+info.wk)+'\u2019s week'+(active?'':' (inactive)')), el('span',{class:'who'},'· '+fmtShort(d)+' – '+fmtShort(addDays(d,6))));
+  return b;
+}
 function renderMonth(){
   $('#monthTitle').textContent=MN[viewM]+' '+viewY;
   const first=new Date(Date.UTC(viewY,viewM,1)); const start=mondayOf(first); const tk=todayKey();
@@ -405,15 +424,17 @@ function renderMonth(){
   for (let d=start; d<end; d=addDays(d,1)){
     setTeam(pid); const info=dayInfo(d); const out=d.getUTCMonth()!==viewM; const wk=dow(d)>=5; const teamwk=!!info.weekend; const duty=isDuty(info);
     const mkOc=()=>{ const a=[]; for (const t of others){ setTeam(t.id); a.push(...otherChips(dayInfo(d),t)); } setTeam(pid); return a; }; const oc=mkOc(); const oc2=mkOc();
-    grid.append(el('button',{class:'cell'+(out?' out':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
-      el('div',{class:'dn'}, el('b',{},d.getUTCDate()), dow(d)===0?el('span',{class:'wk'},'WK '+info.wk):''), ...chipsFor(info,true), ...oc));
+    if (dow(d)===0){ grid.append(weekBand(info,d)); list.append(weekBand(info,d)); }
+    grid.append(el('button',{class:'cell wk'+info.wk+(out?' out':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
+      el('div',{class:'dn'}, el('b',{},d.getUTCDate()), el('span',{class:'wkpill'},'W'+info.wk)), ...chipsFor(info,true), ...oc));
     if (!out){ const quiet=!duty&&!info.post&&!info.postWk&&!info.clinic&&!info.leave.length&&!info.pending.length&&!oc.length;
-      list.append(el('button',{class:'row'+(quiet?' quiet':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
+      list.append(el('button',{class:'row wk'+info.wk+(quiet?' quiet':'')+(wk?' wkend':'')+(teamwk?' teamwk':'')+(duty?' duty':'')+(info.key===tk?' today':''), onclick:()=>openDay(info.key,pid)},
         el('div',{class:'dn'}, DN[dow(d)], el('b',{},d.getUTCDate())),
-        el('div',{class:'body'}, dow(d)===0?el('div',{class:'wkl'},S().name+' rota week '+info.wk+(info.wk===S().weekendWeek?' · team weekend':'')):null, ...(quiet?[el('span',{class:'note'},'—')]:chipsFor(info,false)), ...oc2))); }
+        el('div',{class:'body'}, ...(quiet?[el('span',{class:'note'},'—')]:chipsFor(info,false)), ...oc2))); }
   }
 }
 function renderLegend(){ setTeam(primaryTeamId()); const L=$('#legend'); L.innerHTML=''; const add=(c,t)=>L.append(el('span',{style:'--c:'+c},t));
+  for (const n of [1,2,3,4]) add('var(--wk'+n+')','Week '+n+' · Team '+n);
   add('var(--warn)',S().name+' on-call day ('+DN[S().oncallWeekday]+' + week-'+S().weekendWeek+' weekend)'); add('var(--oncall)','On call'); add('var(--long)','Long weekend'); add('var(--short)','Short weekend'); add('var(--clinic)','Fracture clinic'); add('var(--leave)','Away'); add('var(--pend)','Swap pending'); if (teams().length>1) add('var(--mute)','Other teams (muted)'); }
 function renderTop(){
   const b=$('#btnAccount'); b.innerHTML='';
@@ -427,7 +448,7 @@ function renderTop(){
   else if (!acct()){ ro.textContent='Sign in (top right) to make changes.'; ro.hidden=false; }
 }
 function render(){ $('#teamName').textContent=G().appName||'On-Call Rota'; $('#teamSub').textContent=G().subtitle||''; renderTop(); renderLegend(); renderNow(); renderMonth(); setTeam(state.sheetTeam||primaryTeamId()); if (state.open) state.open(); }
-$('#teamSel').addEventListener('change',e=>{ state.viewTeam=e.target.value; try{localStorage.setItem('rota.viewTeam',state.viewTeam);}catch(err){} render(); });
+$('#teamSel').addEventListener('change',e=>{ state.viewTeam=e.target.value; try{sessionStorage.setItem('rota.viewTeam',state.viewTeam);}catch(err){} render(); });
 $('#prev').onclick=()=>{ viewM--; if(viewM<0){viewM=11;viewY--;} renderMonth(); };
 $('#next').onclick=()=>{ viewM++; if(viewM>11){viewM=0;viewY++;} renderMonth(); };
 const goToday=()=>{ const t=parse(todayKey()); viewY=t.getUTCFullYear(); viewM=t.getUTCMonth(); renderMonth(); const r=$('.row.today'); if(r) r.scrollIntoView({block:'center'}); };
@@ -669,7 +690,7 @@ function slotRequestForm(){
 }
 
 /* ---------- sign-in / accounts ---------- */
-function setLogin(key){ state.login=key||''; try{ if(key) localStorage.setItem('rota.login',key); else localStorage.removeItem('rota.login'); }catch(e){} syncAcct(); }
+function setLogin(key){ state.login=key||''; state.viewTeam=''; try{sessionStorage.removeItem('rota.viewTeam');}catch(e){} try{ if(key) localStorage.setItem('rota.login',key); else localStorage.removeItem('rota.login'); }catch(e){} syncAcct(); }
 function syncAcct(){ state.acct = state.login ? (state.accounts[state.login]||null) : null; }
 function openAccount(){
   if (!state.db){ toast('Still connecting to the shared rota. Try again in a moment.'); return; }
