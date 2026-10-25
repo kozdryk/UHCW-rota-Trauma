@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
-<meta name="app-version" content="1792963809">
+<meta name="app-version" content="1792965032">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -567,7 +567,7 @@ function openDay(key, teamId){
     if (info.leave.length) for (const l of info.leave) sec.append(el('div',{class:'tog'}, el('div',{}, el('div',{class:'nm'},nameOf(l.who)+' · '+(l.type||'away')), el('div',{class:'why'},l.from+' → '+l.to+(l.note?' · '+l.note:'')+(l.by?' · added by '+l.by:''))), canLeave(l.who)&&isDuty(info)?el('button',{class:'btn sm danger',onclick:()=>removeLeave(l)},'Remove'):null));
     else sec.append(el('div',{class:'note'},'Nobody is recorded as away.'));
     if (isDuty(info)) { if (canWriteAny()) sec.append(leaveForm(key)); }
-    else sec.append(el('div',{class:'note'},'Leave and swaps are recorded on '+T.name+'\'s on-call days (shown in red): '+DNL[T.oncallWeekday]+'s and week-'+T.weekendWeek+' weekends. Tap one of those days.'));
+    else sec.append(el('div',{class:'note'},'Swaps are made on '+T.name+'\'s on-call days (shown in red). Leave can be added from any red day or from the Leave button at the top.'));
     bd.append(sec);
     // other teams, read-only summary
     const others=teams().filter(t=>t.id!==T.id); if (others.length){ const os=el('div',{class:'sec'}, el('h3',{},'Other teams on this day')); let any=false; for (const t of others){ setTeam(t.id); const oi=dayInfo(d); const ch=otherChips(oi,t); if (ch.length){ any=true; os.append(el('div',{class:'fr'}, el('b',{},t.name), ...chipsFor(oi,false).filter(x=>!x.classList.contains('leave')&&!x.classList.contains('clinic')), el('button',{class:'btn sm',onclick:()=>openDay(key,t.id)},'Open'))); } } setTeam(T.id); if (!any) os.append(el('div',{class:'note'},'No other team is on call today.')); bd.append(os); }
@@ -644,8 +644,9 @@ function leaveForm(fromKey){
 }
 const removeLeave = l => withPin('remove leave',()=>write(()=>state.db.doc('leave/'+l.id).delete(),'Leave removed: '+nameOf(l.who)+' '+l.from+'–'+l.to));
 $('#btnLeave').onclick=()=>modal('Leave and absence', bd=>{
-  const items=Object.values(state.leave).sort((a,b)=>a.from<b.from?-1:1); const tk=todayKey();
-  bd.append(el('div',{class:'note'},'To record leave, tap one of the red on-call days in the calendar and add it there. While away the consultant drops out of fracture clinic automatically; on-call duties stay on the rota until they are swapped.'));
+  const items=Object.values(state.leave).sort((a,b)=>a.from<b.from?-1:1).sort((a,b)=>(a.who===myId()?0:1)-(b.who===myId()?0:1)); const tk=todayKey();
+  if (canWriteAny()){ const f=leaveForm(todayKey()); f.querySelector('input[type=date]').value=''; f.querySelectorAll('input[type=date]')[1].value=''; bd.append(el('div',{class:'sec hl'}, el('h3',{},'Add leave'), f, el('div',{class:'note'},'Confirmed with your password. While away you drop out of fracture clinic automatically; any on-call duty inside the dates stays on the rota until it is swapped, and is listed below under "Needs a swap".'))); }
+  else bd.append(el('div',{class:'note'},'Sign in to add leave.'));
   const upcoming=items.filter(l=>l.to>=tk), past=items.filter(l=>l.to<tk);
   const tbl=rows=>{ const t=el('table',{}, el('tr',{}, el('th',{},'Who'), el('th',{},'Team'), el('th',{},'From'), el('th',{},'To'), el('th',{},'Type'), el('th',{},''))); for (const l of rows) t.append(el('tr',{}, el('td',{},nameOf(l.who)), el('td',{},(teamById(teamOf(l.who))||{}).short||''), el('td',{},l.from), el('td',{},l.to), el('td',{},(l.type||'')+(l.note?' · '+l.note:'')), el('td',{}, canLeave(l.who)?el('button',{class:'btn sm danger',onclick:()=>removeLeave(l)},'Remove'):''))); return el('div',{class:'tw'},t); };
   bd.append(el('div',{class:'sec'}, el('h3',{},'Upcoming'), upcoming.length?tbl(upcoming):el('div',{class:'note'},'Nothing recorded yet.')));
