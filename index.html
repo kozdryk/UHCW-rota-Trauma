@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
-<meta name="app-version" content="1792961959">
+<meta name="app-version" content="1792962042">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -579,7 +579,7 @@ function swapForm(duty, mode){
     const note=el('input',{class:'inp grow',placeholder:'message (optional)',id:'sw-note'});
     const giver = mode==='ask' ? me : duty.holder;
     const cdays=clinicDaysOf(duty); const clinicQ=el('div',{class:'sec'}, el('h3',{},'Fracture clinic that day'));
-    const clinicSel=el('select',{class:'inp grow',id:'sw-clinic'}, el('option',{value:'away'},(mode==='ask'?'I will be away':nameOf(giver)+' will be away')+' — not in fracture clinic'), el('option',{value:'in'},(mode==='ask'?'I will still be in':nameOf(giver)+' will still be in')+' fracture clinic'), el('option',{value:'keep'},'Leave clinic as it is'));
+    const clinicSel=el('select',{class:'inp grow',id:'sw-clinic'}, el('option',{value:'away'},(mode==='ask'?'I will be away':nameOf(giver)+' will be away')+' — not in fracture clinic'), el('option',{value:'in'},(mode==='ask'?'I will still be in':nameOf(giver)+' will still be in')+' fracture clinic'));
     if (cdays.length) clinicQ.append(el('div',{class:'note'},'Clinic day'+(cdays.length>1?'s':'')+': '+cdays.map(fmtKey).join(', ')+'. When the swap is approved, '+(mode==='ask'?'your':nameOf(giver)+'\'s')+' clinic attendance is set from this.'), el('div',{class:'fr'}, clinicSel)); else clinicQ.append(el('div',{class:'note'},'No fracture clinic falls on this duty.'));
     bd.append(el('div',{class:'sec hl'}, el('h3',{},'Duty'), el('div',{class:'big'},duty.label+' · currently '+nameOf(duty.holder)),
       mode==='ask' ? el('div',{class:'fr'}, el('label',{for:'sw-who'},'Ask'), who) : el('div',{class:'note'},'You offer to take this duty from '+nameOf(duty.holder)+'. They approve or decline.'),
