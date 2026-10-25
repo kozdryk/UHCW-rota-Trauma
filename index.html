@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
+<meta name="app-version" content="1792961332">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -197,6 +198,7 @@ td .inp.sm{width:5.5em}
 .wkband .wkn span{color:#fff}
 .wkband .who{font-weight:600;text-transform:none;letter-spacing:0;color:inherit;font-size:12px}
 .legend .wkdot{display:inline-flex;gap:4px;align-items:center}
+.upd{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#ffb81c;color:#212b32;font-weight:700;text-align:center;padding:12px max(16px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px));cursor:pointer;box-shadow:0 -2px 8px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
@@ -863,6 +865,12 @@ render();
   document.addEventListener('touchstart',e=>{ if (window.scrollY<=0 && !document.querySelector('.sheet')) y0=e.touches[0].clientY; else y0=null; },{passive:true});
   document.addEventListener('touchmove',e=>{ if (y0===null) return; pulled=Math.max(0,Math.min(MAX,(e.touches[0].clientY-y0)*0.5)); bar.style.height=pulled+'px'; bar.firstChild.textContent=pulled>=MAX?'Release to refresh':'Pull to refresh'; },{passive:true});
   document.addEventListener('touchend',()=>{ if (y0!==null && pulled>=MAX){ bar.firstChild.textContent='Refreshing…'; setTimeout(()=>location.reload(),150); } else bar.style.height='0'; y0=null; pulled=0; });
+})();
+
+/* ---------- self-update check (home-screen copies never get a reload button) ---------- */
+(()=>{ const mine=(document.querySelector('meta[name="app-version"]')||{}).content||''; let shown=false;
+  async function check(){ try { const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json(); if (j.v && mine && j.v!==mine && !shown){ shown=true; const b=document.createElement('div'); b.className='upd'; b.textContent='New version of the rota available — tap to update'; b.onclick=()=>{ location.replace(location.pathname+'?v='+j.v); }; document.body.append(b); } } catch(e){} }
+  check(); setInterval(check, 5*60*1000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) check(); });
 })();
 </script>
 
