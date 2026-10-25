@@ -10,7 +10,7 @@ service cloud.firestore {
       allow read: if known(coll);
       allow create, update: if known(coll) && request.resource.data.size() <= 60;
       // only these can be removed from the app: swaps undone, leave removed, accounts released, requests withdrawn
-      allow delete: if coll in ['overrides','weekends','leave','accounts','requests'];
+      allow delete: if coll in ['overrides','weekends','leave','accounts','requests','teams'];
     }
   }
 }
