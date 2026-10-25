@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
-<meta name="app-version" content="1792962042">
+<meta name="app-version" content="1792963330">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -400,21 +400,24 @@ function otherChips(info, t){
   return out;
 }
 function renderNow(){
-  const box=$('#now'); box.innerHTML=''; setTeam(primaryTeamId());
-  const t=parse(todayKey()); const key=ymd(t); const wi=weekInfo(t);
-  const thisWeekOC=dayInfo(addDays(wi.mon,S().oncallWeekday));
-  box.append(el('div',{class:'tile'}, el('div',{class:'k'},S().name+' · this week'), el('div',{class:'v'},'Week '+wi.wk+' · '+nameOf(thisWeekOC.oncall?thisWeekOC.oncall.id:'')), el('div',{class:'d'},'On call '+DNL[S().oncallWeekday]+' '+fmtShort(thisWeekOC.d))));
-  let w=null; for (let i=0;i<10 && !w;i++){ const cand=addDays(wi.mon,4+i*7); if (cand>=addDays(t,-2)) { const ww=weekendFor(cand); if (ww) w=ww; } }
-  if (w) box.append(el('div',{class:'tile'}, el('div',{class:'k'},(w.fri<=t&&addDays(w.fri,2)>=t)?'This weekend':'Next '+S().name+' weekend'), el('div',{class:'v'},fmtShort(w.fri)+' – '+fmtShort(addDays(w.fri,2))), el('div',{class:'d'},'Long: '+nameOf(w.long)+' · Short: '+nameOf(w.short))));
-  let cd=null; for (let i=0;i<8;i++){ const inf=dayInfo(addDays(t,i)); if (inf.clinic){ cd=inf; break; } }
-  if (cd){ const n=cd.clinic.present.length; box.append(el('div',{class:'tile'+(n===0?' alert':'')}, el('div',{class:'k'},cd.key===key?'Fracture clinic today':'Next fracture clinic · '+fmtShort(cd.d)), el('div',{class:'v'},n===0?'No consultant':cd.clinic.present.map(nameOf).join(', ')), el('div',{class:'d'},(cd.clinic.registrar?'Registrar: '+cd.clinic.registrar+' · ':'')+'Tap the day to change'))); }
+  const box=$('#now'); box.innerHTML='';
+  const t=parse(todayKey()); const key=ymd(t); const pid=primaryTeamId();
+  // which teams to summarise: admin / no team → all active; otherwise the person's own team first
+  const list = (isAdmin()||!teamById(myTeam())) ? teams() : [teamById(pid)];
+  for (const T of list){ setTeam(T.id);
+    // next on-call day from today (today counts)
+    let nx=null; for (let i=0;i<8 && !nx;i++){ const d=addDays(t,i); if (dow(d)===T.oncallWeekday) nx=dayInfo(d); }
+    if (nx) box.append(el('div',{class:'tile'}, el('div',{class:'k'},T.name+' · '+(nx.key===key?'on call today':'next on call')), el('div',{class:'v'},nameOf(nx.oncall?nx.oncall.id:'')+(nx.oncall&&nx.oncall.override?' (swap)':'')), el('div',{class:'d'},DNL[T.oncallWeekday]+' '+fmtShort(nx.d)+' · week '+nx.wk)));
+    // this or next team weekend
+    let w=null; for (let i=0;i<10 && !w;i++){ const cand=addDays(mondayOf(t),4+i*7); if (addDays(cand,2)>=t){ const ww=weekendFor(cand); if (ww) w=ww; } }
+    if (w) box.append(el('div',{class:'tile'}, el('div',{class:'k'},T.name+' · '+((w.fri<=t&&addDays(w.fri,2)>=t)?'this weekend':'next weekend')), el('div',{class:'v'},fmtShort(w.fri)+' – '+fmtShort(addDays(w.fri,2))), el('div',{class:'d'},'Long: '+nameOf(w.long)+' · Short: '+nameOf(w.short))));
+    // today's or next fracture clinic
+    let cd=null; for (let i=0;i<8;i++){ const inf=dayInfo(addDays(t,i)); if (inf.clinic){ cd=inf; break; } }
+    if (cd){ const n=cd.clinic.present.length; box.append(el('div',{class:'tile'+(n===0?' alert':'')}, el('div',{class:'k'},T.name+' · '+(cd.key===key?'fracture clinic today':'next fracture clinic · '+fmtShort(cd.d))), el('div',{class:'v'},n===0?'No consultant':cd.clinic.present.map(nameOf).join(', ')), el('div',{class:'d'},(cd.clinic.registrar?'Registrar: '+cd.clinic.registrar+' · ':'')+'Tap the day to change'))); }
+  }
+  setTeam(pid);
   const inbox=myInbox(); const news=myNews(); const iss=myIssues(); if (inbox.length||news.length||iss.length) box.append(el('div',{class:'tile pend'}, el('div',{class:'k'},'Notifications'), el('div',{class:'v'},[inbox.length?inbox.length+' to approve or decline':'', news.length?news.length+' new decision'+(news.length===1?'':'s'):'', iss.length?iss.length+(isAdmin()?' problem'+(iss.length===1?'':'s')+' reported':' report'+(iss.length===1?'':'s')+' answered'):''].filter(Boolean).join(' · ')), el('button',{class:'btn sm',onclick:openRequests},'Open')));
-  const away=leaveOn(key); if (away.length) box.append(el('div',{class:'tile'}, el('div',{class:'k'},'Away today'), el('div',{class:'v'},away.map(l=>nameOf(l.who)).join(', '))));
-}
-function weekBand(info,d){
-  const tOfWeek=allTeams()[info.wk-1]; const active=tOfWeek && tOfWeek.active!==false;
-  const b=el('div',{class:'wkband wk'+info.wk}, el('span',{class:'wkn'}, el('span',{},'Week '+info.wk)), el('span',{},(tOfWeek?tOfWeek.name:'Team '+info.wk)+'\u2019s week'+(active?'':' (inactive)')), el('span',{class:'who'},'· '+fmtShort(d)+' – '+fmtShort(addDays(d,6))));
-  return b;
+  const away=Object.values(state.leave).filter(l=>l.from<=key && l.to>=key); if (away.length) box.append(el('div',{class:'tile'}, el('div',{class:'k'},'Away today'), el('div',{class:'v'},away.map(l=>nameOf(l.who)).join(', '))));
 }
 function renderMonth(){
   $('#monthTitle').textContent=MN[viewM]+' '+viewY;
