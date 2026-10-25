@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
-<meta name="app-version" content="1792963330">
+<meta name="app-version" content="1792963538">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -418,6 +418,10 @@ function renderNow(){
   setTeam(pid);
   const inbox=myInbox(); const news=myNews(); const iss=myIssues(); if (inbox.length||news.length||iss.length) box.append(el('div',{class:'tile pend'}, el('div',{class:'k'},'Notifications'), el('div',{class:'v'},[inbox.length?inbox.length+' to approve or decline':'', news.length?news.length+' new decision'+(news.length===1?'':'s'):'', iss.length?iss.length+(isAdmin()?' problem'+(iss.length===1?'':'s')+' reported':' report'+(iss.length===1?'':'s')+' answered'):''].filter(Boolean).join(' · ')), el('button',{class:'btn sm',onclick:openRequests},'Open')));
   const away=Object.values(state.leave).filter(l=>l.from<=key && l.to>=key); if (away.length) box.append(el('div',{class:'tile'}, el('div',{class:'k'},'Away today'), el('div',{class:'v'},away.map(l=>nameOf(l.who)).join(', '))));
+}
+function weekBand(info,d){
+  const tOfWeek=allTeams()[info.wk-1]; const active=tOfWeek && tOfWeek.active!==false;
+  return el('div',{class:'wkband wk'+info.wk}, el('span',{class:'wkn'}, el('span',{},'Week '+info.wk)), el('span',{},(tOfWeek?tOfWeek.name:'Team '+info.wk)+'\u2019s week'+(active?'':' (inactive)')), el('span',{class:'who'},'· '+fmtShort(d)+' – '+fmtShort(addDays(d,6))));
 }
 function renderMonth(){
   $('#monthTitle').textContent=MN[viewM]+' '+viewY;
