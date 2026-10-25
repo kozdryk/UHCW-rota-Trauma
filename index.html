@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>UHCW Trauma Rota</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#15181d; --muted:#6b7280; --line:#e4e7ec;
+  --accent:#1a5fb4; --accent-soft:#e8f0fb; --today:#fff6e5; --today-line:#e8a33d;
+  --weekend:#f2f4f7; --ok:#1f8a4c; --warn:#b42318; --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1216; --card:#171b21; --ink:#e8eaed; --muted:#9aa2ae; --line:#272c34;
+    --accent:#6fa8ef; --accent-soft:#1b2a3f; --today:#2b2314; --today-line:#b5862f;
+    --weekend:#141821; --ok:#4ec47f; --warn:#f0776a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1216; --card:#171b21; --ink:#e8eaed; --muted:#9aa2ae; --line:#272c34;
+  --accent:#6fa8ef; --accent-soft:#1b2a3f; --today:#2b2314; --today-line:#b5862f;
+  --weekend:#141821; --ok:#4ec47f; --warn:#f0776a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:720px;margin:0 auto;padding:16px 16px 96px}
+header{display:flex;align-items:flex-start;gap:12px;margin:8px 0 18px}
+h1{font-size:20px;line-height:1.2;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px;margin-top:3px}
+.spacer{flex:1}
+button{font:inherit;cursor:pointer;border-radius:999px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink);padding:9px 14px;min-height:40px}
+button:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-ghost{background:transparent}
+.week{margin-bottom:22px}
+.week h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+  margin:0 0 8px 2px;font-weight:600}
+.days{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.day{display:flex;gap:12px;align-items:center;width:100%;text-align:left;
+  padding:12px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;
+  border-radius:0;min-height:60px}
+.day:last-child{border-bottom:0}
+.day.weekend{background:var(--weekend)}
+.day.today{background:var(--today);box-shadow:inset 3px 0 0 var(--today-line)}
+.date{width:62px;flex:0 0 62px}
+.dow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.dnum{font-size:17px;font-weight:650;line-height:1.1}
+.slots{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
+.slot{display:inline-flex;align-items:baseline;gap:5px;background:var(--accent-soft);
+  border-radius:8px;padding:3px 8px;max-width:100%}
+.slot .lab{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.slot .val{font-size:14px;font-weight:650;letter-spacing:.01em}
+.slot.empty{background:transparent;border:1px dashed var(--line)}
+.slot.empty .val{color:var(--muted);font-weight:400}
+.chev{color:var(--muted);flex:0 0 auto}
+.status{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);
+  margin:0 2px 14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 auto}
+.dot.live{background:var(--ok)} .dot.bad{background:var(--warn)}
+.sheet-bg{position:fixed;inset:0;background:rgba(10,12,16,.45);opacity:0;pointer-events:none;
+  transition:opacity .18s ease;z-index:40}
+.sheet-bg.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);
+  border-radius:18px 18px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+  transform:translateY(102%);transition:transform .22s ease;max-height:86vh;overflow:auto;
+  border-top:1px solid var(--line)}
+.sheet.open{transform:translateY(0)}
+@media(min-width:620px){
+  .sheet{left:50%;right:auto;bottom:auto;top:50%;width:460px;max-width:calc(100vw - 32px);
+    border-radius:18px;border:1px solid var(--line);transform:translate(-50%,-44%) scale(.98);
+    opacity:0;transition:opacity .18s ease, transform .18s ease}
+  .sheet.open{transform:translate(-50%,-50%) scale(1);opacity:1}
+}
+.sheet h3{margin:0 0 2px;font-size:18px}
+.sheet .when{color:var(--muted);font-size:13px;margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--muted);margin-bottom:5px;font-weight:600}
+.field .read{font-size:17px;font-weight:600}
+.field .read .surname{font-weight:400;color:var(--muted)}
+.field .read.none{font-weight:400;color:var(--muted)}
+input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);
+  border:1px solid var(--line);border-radius:10px;padding:11px 12px;min-height:44px}
+textarea{min-height:130px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px}
+input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.row{display:flex;gap:10px;margin-top:18px}
+.row button{flex:1}
+.locked-note{background:var(--accent-soft);border-radius:10px;padding:11px 12px;
+  font-size:13px;color:var(--muted);margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;
+  opacity:0;pointer-events:none;transition:all .2s ease;z-index:60;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.foot{color:var(--muted);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>UHCW Trauma Rota</h1>
+      <div class="sub" id="range">&nbsp;</div>
+    </div>
+    <div class="spacer"></div>
+    <button id="lockBtn" class="btn-ghost">Unlock</button>
+  </header>
+
+  <div class="status"><span class="dot" id="dot"></span><span id="statusText">Connecting&hellip;</span></div>
+
+  <main id="weeks"></main>
+
+  <div class="foot">
+    Initials only. Tap a day for surnames.<br>
+    Link holders can view; the passphrase is needed to change anything.
+  </div>
+</div>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+const firebaseConfig = {
+  apiKey: "AIzaSyCU0XGdn9d0khs2Qm8t2nzbHN36vlVtia0",
+  authDomain: "uhcw-trauma-rota.firebaseapp.com",
+  projectId: "uhcw-trauma-rota",
+  storageBucket: "uhcw-trauma-rota.firebasestorage.app",
+  messagingSenderId: "236697279013",
+  appId: "1:236697279013:web:6359c21432a540fe2f7dcc"
+};
+
+const PASS_HASH = "52158fa699214064c035a8a1929b141b85e09bb1dfbc109423a008e88b9e4b18";
+const WEEKS = 4;
+
+let db = null, rota = null, doc, setDoc, onSnapshot, serverTimestamp;
+
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const $ = (id) => document.getElementById(id);
+const iso = (d) => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+const isWeekend = (d) => d.getDay() === 0 || d.getDay() === 6;
+const slotsFor = (d) => isWeekend(d)
+  ? [{k:"trauma", l:"Trauma 1"}, {k:"trauma2", l:"Trauma 2"}]
+  : [{k:"trauma", l:"Trauma"}, {k:"clinic", l:"Fracture clinic"}];
+
+let data = {};            // docId -> fields
+let names = {};           // INITIALS -> surname
+let unlocked = sessionStorage.getItem("rota-unlocked") === "1";
+let me = localStorage.getItem("rota-me") || "";
+let openDay = null;
+
+function days(){
+  const out = [], t = new Date(); t.setHours(0,0,0,0);
+  const start = new Date(t);
+  start.setDate(t.getDate() - ((t.getDay() + 6) % 7));   // Monday of this week
+  for (let i = 0; i < WEEKS * 7; i++){
+    const d = new Date(start); d.setDate(start.getDate() + i); out.push(d);
+  }
+  return out;
+}
+
+function toast(msg){
+  const el = $("toast"); el.textContent = msg; el.classList.add("show");
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+async function sha256(s){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+function parseNames(txt){
+  const map = {};
+  (txt || "").split(/\r?\n/).forEach(line => {
+    const m = line.match(/^\s*([^=:]+)\s*[=:]\s*(.+?)\s*$/);
+    if (m) map[m[1].trim().toUpperCase()] = m[2].trim();
+  });
+  return map;
+}
+const surname = (ini) => names[(ini||"").trim().toUpperCase()] || "";
+
+function render(){
+  const all = days(), todayISO = iso(new Date()), weeks = $("weeks");
+  weeks.innerHTML = "";
+  $("range").textContent = fmtRange(all[0], all[all.length-1]);
+
+  for (let w = 0; w < WEEKS; w++){
+    const block = all.slice(w*7, w*7+7);
+    const sec = document.createElement("section");
+    sec.className = "week";
+    const h = document.createElement("h2");
+    h.textContent = "Week of " + DOW[block[0].getDay()] + " " + block[0].getDate() + " " + MON[block[0].getMonth()];
+    sec.appendChild(h);
+
+    const list = document.createElement("div");
+    list.className = "days";
+    block.forEach(d => {
+      const id = iso(d), rec = data[id] || {};
+      const btn = document.createElement("button");
+      btn.className = "day" + (isWeekend(d) ? " weekend" : "") + (id === todayISO ? " today" : "");
+      btn.onclick = () => openSheet(d);
+
+      const dt = document.createElement("div");
+      dt.className = "date";
+      dt.innerHTML = '<div class="dow"></div><div class="dnum"></div>';
+      dt.querySelector(".dow").textContent = DOW[d.getDay()];
+      dt.querySelector(".dnum").textContent = d.getDate() + " " + MON[d.getMonth()];
+      btn.appendChild(dt);
+
+      const sl = document.createElement("div");
+      sl.className = "slots";
+      slotsFor(d).forEach(s => {
+        const v = (rec[s.k] || "").trim();
+        const chip = document.createElement("span");
+        chip.className = "slot" + (v ? "" : " empty");
+        chip.innerHTML = '<span class="lab"></span><span class="val"></span>';
+        chip.querySelector(".lab").textContent = s.l;
+        chip.querySelector(".val").textContent = v || "—";
+        sl.appendChild(chip);
+      });
+      btn.appendChild(sl);
+
+      const chev = document.createElement("span");
+      chev.className = "chev"; chev.textContent = "›";
+      btn.appendChild(chev);
+
+      list.appendChild(btn);
+    });
+    sec.appendChild(list);
+    weeks.appendChild(sec);
+  }
+  if (openDay) openSheet(openDay, true);
+}
+
+function fmtRange(a, b){
+  return DOW[a.getDay()] + " " + a.getDate() + " " + MON[a.getMonth()] +
+         " – " + DOW[b.getDay()] + " " + b.getDate() + " " + MON[b.getMonth()] + " " + b.getFullYear();
+}
+
+function closeSheet(){
+  openDay = null;
+  $("sheet").classList.remove("open");
+  $("sheetBg").classList.remove("open");
+}
+
+function openSheet(d, keep){
+  openDay = d;
+  const id = iso(d), rec = data[id] || {}, sheet = $("sheet");
+  sheet.innerHTML = "";
+
+  const h = document.createElement("h3");
+  h.textContent = DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()] + " " + d.getFullYear();
+  sheet.appendChild(h);
+
+  const when = document.createElement("div");
+  when.className = "when";
+  when.textContent = rec.updatedAt
+    ? "Last changed " + new Date(rec.updatedAt.seconds * 1000).toLocaleString("en-GB",
+        {weekday:"short", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}) +
+        (rec.updatedBy ? " by " + rec.updatedBy : "")
+    : "Not filled in yet";
+  sheet.appendChild(when);
+
+  slotsFor(d).forEach(s => {
+    const v = (rec[s.k] || "").trim();
+    const f = document.createElement("div");
+    f.className = "field";
+    const lab = document.createElement("label");
+    lab.textContent = s.l; lab.htmlFor = "f-" + s.k;
+    f.appendChild(lab);
+
+    if (unlocked){
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.id = "f-" + s.k; inp.value = v;
+      inp.placeholder = "Initials, e.g. JK";
+      inp.autocapitalize = "characters"; inp.autocomplete = "off"; inp.spellcheck = false;
+      inp.dataset.key = s.k;
+      f.appendChild(inp);
+      const sn = document.createElement("div");
+      sn.className = "hint";
+      const paint = () => { const n = surname(inp.value); sn.textContent = n ? n : (inp.value.trim() ? "no surname on the key yet" : ""); };
+      inp.addEventListener("input", paint); paint();
+      f.appendChild(sn);
+    } else {
+      const r = document.createElement("div");
+      r.className = "read" + (v ? "" : " none");
+      if (v){
+        const n = surname(v);
+        r.innerHTML = '<span class="ini"></span>' + (n ? ' <span class="surname"></span>' : "");
+        r.querySelector(".ini").textContent = v;
+        if (n) r.querySelector(".surname").textContent = "· " + n;
+      } else r.textContent = "Not filled in";
+      f.appendChild(r);
+    }
+    sheet.appendChild(f);
+  });
+
+  const row = document.createElement("div");
+  row.className = "row";
+  if (unlocked){
+    const save = document.createElement("button");
+    save.className = "btn-primary"; save.textContent = "Save";
+    save.onclick = () => saveDay(id, sheet, save);
+    const cancel = document.createElement("button");
+    cancel.className = "btn-ghost"; cancel.textContent = "Cancel";
+    cancel.onclick = closeSheet;
+    row.append(cancel, save);
+  } else {
+    const note = document.createElement("div");
+    note.className = "locked-note";
+    note.textContent = "Locked. Tap Unlock at the top to change the rota.";
+    sheet.appendChild(note);
+    const close = document.createElement("button");
+    close.className = "btn-ghost"; close.textContent = "Close";
+    close.onclick = closeSheet;
+    row.append(close);
+  }
+  sheet.appendChild(row);
+
+  if (!keep){ sheet.classList.add("open"); $("sheetBg").classList.add("open"); }
+}
+
+async function saveDay(id, sheet, btn){
+  if (!rota){ toast("Not connected yet — try again in a moment"); return; }
+  const payload = { updatedAt: serverTimestamp() };
+  if (me) payload.updatedBy = me;
+  sheet.querySelectorAll("input[data-key]").forEach(i => {
+    payload[i.dataset.key] = i.value.trim().toUpperCase();
+  });
+  btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    await setDoc(doc(rota, id), payload, { merge: true });
+    closeSheet(); toast("Saved");
+  } catch (e){
+    btn.disabled = false; btn.textContent = "Save";
+    toast("Could not save — check your connection");
+  }
+}
+
+async function unlock(){
+  if (unlocked){
+    unlocked = false; sessionStorage.removeItem("rota-unlocked");
+    $("lockBtn").textContent = "Unlock"; $("lockBtn").className = "btn-ghost";
+    closeSheet(); render(); toast("Locked");
+    return;
+  }
+  const p = prompt("Passphrase to edit the rota:");
+  if (p === null) return;
+  if (await sha256(p) !== PASS_HASH){ toast("That passphrase isn't right"); return; }
+  unlocked = true; sessionStorage.setItem("rota-unlocked","1");
+  if (!me){
+    const who = prompt("Your initials (optional — shows who last changed a day):", "");
+    if (who){ me = who.trim().toUpperCase(); localStorage.setItem("rota-me", me); }
+  }
+  $("lockBtn").textContent = "Lock"; $("lockBtn").className = "btn-primary";
+  render(); toast("Unlocked — tap a day to edit");
+  showKeyButton();
+}
+
+function showKeyButton(){
+  if ($("keyBtn")) return;
+  const b = document.createElement("button");
+  b.id = "keyBtn"; b.className = "btn-ghost"; b.textContent = "Name key";
+  b.style.marginLeft = "8px";
+  b.onclick = editNames;
+  $("lockBtn").after(b);
+}
+
+function editNames(){
+  const sheet = $("sheet");
+  sheet.innerHTML = "";
+  const h = document.createElement("h3"); h.textContent = "Name key";
+  const w = document.createElement("div"); w.className = "when";
+  w.textContent = "One per line: initials = surname";
+  const ta = document.createElement("textarea");
+  ta.value = Object.entries(names).map(([k,v]) => k + " = " + v).join("\n");
+  ta.placeholder = "JK = Kozdryk\nMS = Seah";
+  const hint = document.createElement("div");
+  hint.className = "hint";
+  hint.textContent = "Surnames show when someone taps a day.";
+  const row = document.createElement("div"); row.className = "row";
+  const cancel = document.createElement("button");
+  cancel.className = "btn-ghost"; cancel.textContent = "Cancel"; cancel.onclick = closeSheet;
+  const save = document.createElement("button");
+  save.className = "btn-primary"; save.textContent = "Save";
+  save.onclick = async () => {
+    if (!rota){ toast("Not connected yet — try again in a moment"); return; }
+    save.disabled = true; save.textContent = "Saving…";
+    try {
+      await setDoc(doc(rota, "people"), { list: ta.value, updatedAt: serverTimestamp() }, { merge: true });
+      closeSheet(); toast("Name key saved");
+    } catch(e){ save.disabled = false; save.textContent = "Save"; toast("Could not save"); }
+  };
+  row.append(cancel, save);
+  sheet.append(h, w, ta, hint, row);
+  sheet.classList.add("open"); $("sheetBg").classList.add("open");
+}
+
+$("lockBtn").onclick = unlock;
+$("sheetBg").onclick = closeSheet;
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+
+if (unlocked){ $("lockBtn").textContent = "Lock"; $("lockBtn").className = "btn-primary"; showKeyButton(); }
+render();
+
+try {
+  const [appMod, fsMod] = await Promise.all([
+    import("https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"),
+    import("https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js")
+  ]);
+  ({ doc, setDoc, onSnapshot, serverTimestamp } = fsMod);
+  db = fsMod.getFirestore(appMod.initializeApp(firebaseConfig));
+  rota = fsMod.collection(db, "rota");
+
+  onSnapshot(rota, snap => {
+    const next = {};
+    snap.forEach(d => {
+      if (d.id === "people") names = parseNames(d.data().list);
+      else next[d.id] = d.data();
+    });
+    data = next;
+    $("dot").className = "dot live";
+    $("statusText").textContent = "Live — changes appear for everyone straight away";
+    render();
+  }, err => {
+    $("dot").className = "dot bad";
+    $("statusText").textContent = "Lost the connection — reload to try again";
+  });
+} catch (e) {
+  $("dot").className = "dot bad";
+  $("statusText").textContent = "Can't reach the rota data — check your connection and reload";
+}
+</script>
+</body>
+</html>
