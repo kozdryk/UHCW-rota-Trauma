@@ -265,6 +265,9 @@ const nowIso = () => new Date().toISOString();
 
 /* ---------- teams & engine (S() = the team currently being worked on) ---------- */
 const G = () => state.G;
+const normPat = pat => (pat||[]).map(p=>Array.isArray(p)?p.slice(0,2):[Number(p.long)||0,Number(p.short)||0]);
+const normTeam = t => ({...t, weekendPattern: normPat(t.weekendPattern)});
+const encTeam = t => ({...t, weekendPattern: normPat(t.weekendPattern).map(p=>({long:p[0],short:p[1]}))});
 const teams = () => { const list=Object.values(state.teams).filter(t=>t.active!==false); return (list.length?list:[DEFAULT_TEAM]).sort((a,b)=>(a.order||0)-(b.order||0)); };
 const teamById = id => teams().find(t=>t.id===id) || null;
 let CT = null;
@@ -614,7 +617,7 @@ function decide(r, status){
     await write(async()=>{
       if (status==='approved'){
         if (r.type==='swap'){ await transfer(r.give, r.from, r.to); if (r.take) await transfer(r.take, r.to, r.from); }
-        else if (r.type==='slot'){ const t=structuredClone(teamById(r.team)||teamById(teamOf(r.from))); if(!t) throw new Error('Team not found.'); const other=t.consultants.find(c=>c.slot===r.slot&&c.id!==r.from); const mine=t.consultants.find(c=>c.id===r.from); if(!mine) throw new Error('Consultant not found.'); const old=mine.slot; mine.slot=r.slot; if (other) other.slot=old; await state.db.doc('teams/'+t.id).set(t); }
+        else if (r.type==='slot'){ const t=structuredClone(teamById(r.team)||teamById(teamOf(r.from))); if(!t) throw new Error('Team not found.'); const other=t.consultants.find(c=>c.slot===r.slot&&c.id!==r.from); const mine=t.consultants.find(c=>c.id===r.from); if(!mine) throw new Error('Consultant not found.'); const old=mine.slot; mine.slot=r.slot; if (other) other.slot=old; await state.db.doc('teams/'+t.id).set(encTeam(t)); }
       }
       await state.db.doc('requests/'+r.id).set({...r,status,decidedAt:nowIso(),decidedBy:actor()});
     }, 'Request '+status+': '+(r.type==='swap'?r.give.label:'week change for '+nameOf(r.from)));
@@ -725,7 +728,7 @@ $('#btnSettings').onclick=()=>modal('Settings', bd=>{
   // team picker
   const tl=teams(); if (!teamById(settingsTeam)) settingsTeam=tl[0].id;
   const tsel=el('select',{class:'inp',id:'st-team'}); for (const t of tl) tsel.append(el('option',{value:t.id},t.name)); tsel.value=settingsTeam; tsel.onchange=()=>{ settingsTeam=tsel.value; state.open(); };
-  const addTeam=el('button',{class:'btn sm',onclick:()=>{ const n=tl.length+1; const t=blankTeam('team'+Date.now().toString(36),n); withPin('add a team',()=>write(()=>state.db.doc('teams/'+t.id).set(t),'Team added: '+t.name).then(ok=>{ if(ok){ settingsTeam=t.id; } })); }},'Add team');
+  const addTeam=el('button',{class:'btn sm',onclick:()=>{ const n=tl.length+1; const t=blankTeam('team'+Date.now().toString(36),n); withPin('add a team',()=>write(()=>state.db.doc('teams/'+t.id).set(encTeam(t)),'Team added: '+t.name).then(ok=>{ if(ok){ settingsTeam=t.id; } })); }},'Add team');
   bd.append(el('div',{class:'sec'}, el('h3',{},'Teams'), el('div',{class:'fr'}, el('label',{for:'st-team'},'Edit team'), tsel, addTeam), el('div',{class:'note'},'Each team has its own on-call weekday, weekend week, consultants and 4-week cycle. All teams appear in everyone\'s calendar; a person\'s own team is highlighted.')));
   const s=structuredClone(teamById(settingsTeam));
   const tnI=el('input',{class:'inp',value:s.name,id:'t-name'}), tsI=el('input',{class:'inp sm',value:s.short||'',maxlength:'4',id:'t-short'}); const actI=el('input',{type:'checkbox',checked:s.active!==false,id:'t-active'});
@@ -752,7 +755,7 @@ $('#btnSettings').onclick=()=>modal('Settings', bd=>{
       s.consultants=s.consultants.filter(c=>c.name.trim()).map(c=>({...c,name:c.name.trim()}));
       const slots=s.consultants.filter(c=>c.slot).map(c=>c.slot); if (new Set(slots).size!==slots.length){ toast('Two consultants have the same week number.'); return; }
       s.weekendPattern=pat.filter(p=>p[0]!==p[1]); if(!s.weekendPattern.length){ toast('Add at least one weekend pair.'); return; }
-      withPin('save team settings',()=>write(()=>state.db.doc('teams/'+s.id).set(s), s.name+' settings saved').then(ok=>{ if(ok) closeModal(); }));
+      withPin('save team settings',()=>write(()=>state.db.doc('teams/'+s.id).set(encTeam(s)), s.name+' settings saved').then(ok=>{ if(ok) closeModal(); }));
     }},'Save '+s.name), el('span',{class:'note'},'Applies to everyone immediately. Existing swaps stay attached to their dates.'))));
 });
 
@@ -788,7 +791,7 @@ render();
   const err=e=>{ console.error(e); if (e&&(e.code==='permission-denied')){ state.canWrite=false; render(); } };
   db.doc('settings/main').onSnapshot(snap=>{ if (snap.exists) state.G={...DEFAULT_G,...snap.data()}; else db.doc('settings/main').set(DEFAULT_G).catch(()=>{}); render(); }, err);
   let seeded=false;
-  db.collection('teams').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={...d.data(),id:d.id}; state.teams=o; if (snap.empty && !seeded){ seeded=true; db.doc('teams/'+DEFAULT_TEAM.id).set(DEFAULT_TEAM).catch(()=>{}); } render(); }, err);
+  db.collection('teams').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]=normTeam({...d.data(),id:d.id}); state.teams=o; if (snap.empty && !seeded){ seeded=true; db.doc('teams/'+DEFAULT_TEAM.id).set(encTeam(DEFAULT_TEAM)).catch(()=>{}); } render(); }, err);
   const coll=(name,target)=>db.collection(name).onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state[target]=o; render(); }, err);
   coll('overrides','overrides'); coll('weekends','weekends'); coll('clinic','clinic'); coll('leave','leave');
   let firstReq=true;
