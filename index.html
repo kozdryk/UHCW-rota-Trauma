@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#005eb8">
-<meta name="app-version" content="1792967253">
+<meta name="app-version" content="1792967294">
 <meta name="color-scheme" content="light only">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -478,7 +478,6 @@ function openKey(){ modal('What the colours mean', bd=>{ setTeam(primaryTeamId()
   const sec4=el('div',{class:'sec'}, el('h3',{},'Other teams'), row(el('span',{class:'chip other'},'T4 OC NS'),'Dashed grey tags are the other teams, for information: T4 = Team 4, OC on call, PT post-take, L long, S short, WR ward round, followed by initials.'));
   bd.append(sec1,sec2,sec3,sec4);
 }); }
-  for (const n of [1,2,3,4]) add('var(--wk'+n+')','Week '+n+' · Team '+n);
 function renderTop(){
   const b=$('#btnAccount'); b.innerHTML='';
   if (!state.db) b.append('Preview'); else if (!acct()) b.append('Sign in'); else b.append(el('span',{}, el('b',{},actor()), isAdmin()?' · Admin':(isSec()?' · Secretary':''), myTeam()&&teamById(myTeam())?' · '+teamById(myTeam()).short:''));
