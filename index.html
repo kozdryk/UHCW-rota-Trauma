@@ -797,7 +797,7 @@ render();
   const err=e=>{ console.error(e); if (e&&(e.code==='permission-denied')){ state.canWrite=false; render(); } };
   db.doc('settings/main').onSnapshot(snap=>{ if (snap.exists) state.G={...DEFAULT_G,...snap.data()}; else db.doc('settings/main').set(DEFAULT_G).catch(()=>{}); render(); }, err);
   let seeded=false;
-  db.collection('teams').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]=normTeam({...d.data(),id:d.id}); state.teams=o; if (!seeded){ seeded=true; for (const n of FIXED_TEAMS){ if (!o['team'+n]) db.doc('teams/team'+n).set(encTeam(n===3?DEFAULT_TEAM:fixedTeam(n))).catch(()=>{}); } } render(); }, err);
+  db.collection('teams').onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]=normTeam({...d.data(),id:d.id}); state.teams=o; if (!seeded && !snap.metadata.fromCache){ seeded=true; for (const n of FIXED_TEAMS){ if (!o['team'+n]) db.doc('teams/team'+n).get().then(ds=>{ if (!ds.exists) db.doc('teams/team'+n).set(encTeam(n===3?DEFAULT_TEAM:fixedTeam(n))); }).catch(()=>{}); } } render(); }, err);
   const coll=(name,target)=>db.collection(name).onSnapshot(snap=>{ const o={}; for (const d of snap.docs) o[d.id]={id:d.id,...d.data()}; state[target]=o; render(); }, err);
   coll('overrides','overrides'); coll('weekends','weekends'); coll('clinic','clinic'); coll('leave','leave');
   let firstReq=true;
